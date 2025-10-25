@@ -13,34 +13,34 @@ import {CategoryDTO, CategoryQueryDTO} from "@models/Category";
 
 @Service()
 export class CategoryService {
-    constructor(private readonly eventRepository: CategoryRepository) {}
+    constructor(private readonly categoryRepository: CategoryRepository) {}
 
     public async save(dto: CategoryDTO) {
 
-        return await this.eventRepository.save(dto);
+        return await this.categoryRepository.save(dto);
     }
 
     public async findById(wantedCategoryId: number, options?: FindOptions): Promise<Category | null> {
-        return await this.eventRepository.findById(wantedCategoryId, options);
+        return await this.categoryRepository.findById(wantedCategoryId, options);
     }
 
     public async findOne(query: Prisma.CategoryWhereInput, options?: FindOptions): Promise<Category | null> {
-        return await this.eventRepository.findOne(query, options);
+        return await this.categoryRepository.findOne(query, options);
     }
 
     public async paginate(query: CategoryQueryDTO, options: PaginateOptions): Promise<PaginateDatasource<Category> | null> {
 
         const prismaQuery = this.createQueryFromPayload(query);
 
-        return await this.eventRepository.paginate(prismaQuery, options);
+        return await this.categoryRepository.paginate(prismaQuery, options);
     }
 
     public async updateById(eventToUpdateId: number, dto: CategoryDTO): Promise<Category | null> {
-        return await this.eventRepository.updateById(eventToUpdateId, dto);
+        return await this.categoryRepository.updateById(eventToUpdateId, dto);
     }
 
     public async deleteById(id: number): Promise<Category | null> {
-        return await this.eventRepository.deleteById(id);
+        return await this.categoryRepository.deleteById(id);
     }
 
     private createQueryFromPayload(payload: CategoryQueryDTO): Prisma.CategoryWhereInput {

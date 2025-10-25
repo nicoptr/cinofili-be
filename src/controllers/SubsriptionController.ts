@@ -1,0 +1,196 @@
+import { FastifyReply, FastifyRequest } from "fastify";
+import { Controller, DELETE, GET, PATCH, POST } from "fastify-decorators";
+import {
+    SubscriptionCreateDTO,
+    SubscriptionDTO,
+    SubscriptionPaginateBodyInputSchema,
+    SubscriptionPaginateDTO,
+    SubscriptionSchema,
+    SubscriptionUpdateDTO,
+    SubscriptionUpdateSchema,
+} from "@models/Subscription";
+import { SubscriptionService } from "@services/SubscriptionService";
+import { Authenticate } from "@middleware/Authenticate";
+import { exz, FindOptions } from "@utils/exz";
+import httpErrors from "http-errors";
+import { z } from "zod";
+import { HasPermission } from "@middleware/HasPermission";
+import { PermissionAction } from "../enums/PermissionAction";
+import { PermissionScope } from "../enums/PermissionScope";
+
+@Controller({
+    route: "/subscriptions",
+    tags: [{ name: "Subscriptions", description: "Subscription management" }],
+})
+export class SubscriptionController {
+    constructor(private readonly subscriptionService: SubscriptionService) {}
+
+    @POST("/create", {
+        schema: {
+            operationId: "createSubscription",
+            summary: "Create Subscription",
+            body: SubscriptionSchema,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.USER, "USER", PermissionScope.USER),
+        ],
+    })
+    async create(
+        req: FastifyRequest<{ Body: SubscriptionCreateDTO }>,
+        reply: FastifyReply
+    ) {
+        reply
+            .status(200)
+            .send(await this.subscriptionService.create(+req.user.id, req.body));
+    }
+    
+    @GET("/:id", {
+        schema: {
+            operationId: "findSubscription",
+            summary: "Get Subscription from id",
+            params: exz.pathId,
+            querystring: exz.findOptions,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.USER, "USER", PermissionScope.USER),
+        ],
+    })
+    async getById(
+        req: FastifyRequest<{ Params: { id: string }, Querystring: FindOptions }>,
+        reply: FastifyReply
+    ) {
+        const subscription = await this.subscriptionService.findById(+req.user.id, +req.params.id, req.query);
+        if(!subscription) {
+            throw new httpErrors.NotFound();
+        }
+        reply
+            .status(200)
+            .send(subscription);
+    }
+
+    @POST("/", {
+        schema: {
+            operationId: "paginateSubscription",
+            summary: "Paginate Subscription",
+            body: SubscriptionPaginateBodyInputSchema,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.READ, "SUBSCRIPTION", PermissionScope.ALL),
+        ],
+    })
+    async paginate(
+        req: FastifyRequest<{ Body: SubscriptionPaginateDTO }>,
+        reply: FastifyReply
+    ) {
+        const { query, options } = req.body;
+        reply
+            .status(200)
+            .send(await this.subscriptionService.paginate(query, options));
+    }
+    
+    @DELETE("/:id", {
+        schema: {
+            operationId: "deleteSubscription",
+            summary: "Delete Subscription by id",
+            params: exz.pathId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.USER, "USER", PermissionScope.USER),
+        ],
+    })
+    async deleteById(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const subscription = await this.subscriptionService.deleteById(+req.user.id, +req.params.id);
+        if(!subscription) {
+            throw new httpErrors.NotFound();
+        }
+        reply
+            .status(200)
+            .send(subscription);
+    }
+
+    @PATCH("/:id", {
+        schema: {
+            operationId: "updateSubscription",
+            summary: "Update Subscription from id",
+            params: exz.pathId,
+            body: SubscriptionUpdateSchema,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.USER, "USER", PermissionScope.USER),
+        ],
+    })
+    async updateById(
+        req: FastifyRequest<{ Params: { id: string }, Body: SubscriptionUpdateDTO }>,
+        reply: FastifyReply
+    ) {
+        const subscription = await this.subscriptionService.updateById(+req.user.id, +req.params.id, SubscriptionUpdateSchema.parse(req.body));
+        if(!subscription) {
+            throw new httpErrors.NotFound();
+        }
+        reply
+            .status(200)
+            .send(subscription);
+    }
+
+    @PATCH("/invalidate/:id", {
+        schema: {
+            operationId: "invalidateSubscription",
+            summary: "Invalidate Subscription from id",
+            params: exz.pathId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.UPDATE, "SUBSCRIPTION", PermissionScope.SINGLE),
+        ],
+    })
+    async invalidateById(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const subscription = await this.subscriptionService.invalidate(+req.user.id, +req.params.id);
+        if(!subscription) {
+            throw new httpErrors.NotFound();
+        }
+        reply
+            .status(200)
+            .send(subscription);
+    }
+}

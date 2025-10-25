@@ -123,7 +123,7 @@ model Subscription {
   ownerId      Int
   owner        User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   movieName    String
-  isValid      Boolean?  @default(false)
+  isValid      Boolean?  @default(true)
   category     Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId Int
   eventId Int

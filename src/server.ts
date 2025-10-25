@@ -22,6 +22,7 @@ import { removeAnsi } from "@utils/prisma";
 import { Container } from "inversify";
 import {EventController} from "@controllers/EventController";
 import {CategoryController} from "@controllers/CategoryController";
+import {SubscriptionController} from "@controllers/SubsriptionController";
 
 export class APIServer {
     private readonly server: FastifyApplication;
@@ -203,6 +204,7 @@ export class APIServer {
                     UserController,
                     EventController,
                     CategoryController,
+                    SubscriptionController,
                 ].sort((curr, next) => curr.name < next.name ? -1 : 1 )
             ],
             prefix: "/api"
