@@ -1,0 +1,33 @@
+{
+	"compilerOptions": {
+		"target": "es2018",
+		"module": "commonjs",
+		"outDir": "dist",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"useUnknownInCatchVariables": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"skipLibCheck": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"declaration": true,
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"rootDir": ".",
+		"baseUrl": "src",
+		"paths": {
+			"@utils/*": [ "utils/*" ],
+			"@repositories/*": [ "repositories/*" ],
+			"@models/*": [ "models/*" ],
+			"@services/*": [ "services/*" ],
+			"@controllers/*": [ "controllers/*" ],
+			"@routes/*": [ "routes/*" ],
+			"@middleware/*": [ "middleware/*" ],
+			"@interfaces/*": [ "interfaces/*" ]
+		}
+	}
+}

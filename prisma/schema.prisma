@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl", "debian-openssl-3.0.x", "debian-openssl-1.1.x", "linux-musl-openssl-3.0.x"]
+  previewFeatures = ["fullTextSearch"]
+}
+
+generator zod {
+  provider = "zod-prisma"
+  output   = "./generated/zod" // (default) the directory where generated zod schemas will be saved
+
+  relationModel = true // (default) Create and export both plain and related models.
+
+  modelCase = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
+
+  modelSuffix = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
+
+  useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
+
+  prismaJsonNullability = false // (default) uses prisma's scheme for JSON field nullability
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int          @id @default(autoincrement())
+  username  String       @unique
+  email     String       @unique
+  password  String
+  avatarUrl String?
+  note      String?
+  roles     RoleToUser[]
+
+  deleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Subscription Subscription[]
+}
+
+model Role {
+  name                   RoleName                @id
+  label                  String?
+  rank                   Float
+  isActive               Boolean?                @default(true)
+  users                  RoleToUser[]
+  permissionConfigs      PermissionConfig[]
+  hiddenComponentConfigs HiddenComponentConfig[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RoleToUser {
+  id       Int      @id @default(autoincrement())
+  roleName RoleName
+  userId   Int
+  role     Role     @relation(fields: [roleName], references: [name], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isActive Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleName, userId])
+}
+
+enum RoleName {
+  GOD
+  USER
+}
+
+model PermissionConfig {
+  id       Int      @id @default(autoincrement())
+  roleName RoleName
+  role     Role     @relation(fields: [roleName], references: [name], onDelete: Cascade)
+  action   String
+  entity   String
+  scope    String
+
+  @@unique([action, entity, scope, roleName])
+  @@index([action, entity, scope])
+}
+
+model HiddenComponentConfig {
+  id        Int      @id @default(autoincrement())
+  roleName  RoleName
+  role      Role     @relation(fields: [roleName], references: [name], onDelete: Cascade)
+  context   String // core or pages
+  section   String // sidebar, settings, users, setups etc...
+  component String // users_section, download_button,
+  isActive  Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([context, section, component, roleName])
+  @@index([context, section, component])
+}
+
+model Event {
+  id                    Int       @id @default(autoincrement())
+  name                  String
+  description           String?
+  isActive              Boolean?  @default(true)
+  expiresAt             DateTime?
+  subscriptionExpiresAt DateTime
+  numberOfPartecipants  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id           Int       @id @default(autoincrement())
+  ownerId      Int
+  owner        User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  movieName    String
+  isValid      Boolean?  @default(false)
+  category     Category? @relation(fields: [categoryName], references: [name], onDelete: SetNull)
+  categoryName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  name        String   @id
+  description String?
+
+  Subscription Subscription[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

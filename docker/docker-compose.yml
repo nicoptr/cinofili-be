@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  postgresql:
+    image: nicola/postgres
+    container_name: postgresql
+    hostname: postgresql
+    restart: always
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: nicola
+      POSTGRES_PASSWORD: nicola
+      POSTGRES_DB: cinofili

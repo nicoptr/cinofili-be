@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Output
+dist/
+yarn-error.log
+npm-debug.log
+
+# IDE stuff
+.idea/
+
+# Uploads
+public/contents/
+
+# Environment files
+.env
+
+# Log
+public/logs
+/.yarn/
+/.yarnrc.yml
+/.yarnrc
+/.pnp.cjs
+/.pnp.loader.mjs
+/public/images/
+/public/pdf/
+/docker/postgres/populate-staging-db.sh
