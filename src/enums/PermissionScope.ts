@@ -5,4 +5,5 @@ export enum PermissionScope {
     OTHERS = "OTHERS",
     GOD = "GOD",
     TRASH = "TRASH",
+    USER = "USER",
 }

@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "RoleName" AS ENUM ('GOD', 'ADMIN', 'USER', 'USER_INSPECTOR', 'USER_COMMERCIAL', 'USER_PLANNER', 'WORKER', 'WORKER_DESIGNER', 'WORKER_PRINTER', 'WORKER_FINISHER', 'WORKER_ASSEMBLER');
+CREATE TYPE "RoleName" AS ENUM ('GOD', 'USER');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -65,6 +65,44 @@ CREATE TABLE "HiddenComponentConfig" (
     CONSTRAINT "HiddenComponentConfig_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Event" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "isActive" BOOLEAN DEFAULT true,
+    "expiresAt" TIMESTAMP(3),
+    "subscriptionExpiresAt" TIMESTAMP(3) NOT NULL,
+    "numberOfParticipants" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Event_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Subscription" (
+    "id" SERIAL NOT NULL,
+    "ownerId" INTEGER NOT NULL,
+    "movieName" TEXT NOT NULL,
+    "isValid" BOOLEAN DEFAULT false,
+    "categoryName" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Subscription_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Category" (
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("name")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
@@ -97,3 +135,9 @@ ALTER TABLE "PermissionConfig" ADD CONSTRAINT "PermissionConfig_roleName_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "HiddenComponentConfig" ADD CONSTRAINT "HiddenComponentConfig_roleName_fkey" FOREIGN KEY ("roleName") REFERENCES "Role"("name") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_categoryName_fkey" FOREIGN KEY ("categoryName") REFERENCES "Category"("name") ON DELETE SET NULL ON UPDATE CASCADE;

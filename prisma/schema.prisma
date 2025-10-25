@@ -111,7 +111,8 @@ model Event {
   isActive              Boolean?  @default(true)
   expiresAt             DateTime?
   subscriptionExpiresAt DateTime
-  numberOfPartecipants  Int
+  numberOfParticipants  Int
+  subscriptions Subscription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -123,15 +124,20 @@ model Subscription {
   owner        User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   movieName    String
   isValid      Boolean?  @default(false)
-  category     Category? @relation(fields: [categoryName], references: [name], onDelete: SetNull)
-  categoryName String?
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId Int
+  eventId Int
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+
 }
 
 model Category {
-  name        String   @id
+  id           Int       @id @default(autoincrement())
+  name        String
   description String?
 
   Subscription Subscription[]

@@ -64,8 +64,7 @@ export function mapPrismaErrorToConsoleError(err: PrismaClientKnownRequestError)
  */
 export function evaluateQuery(query: any) {
     return {
-        ...query,
-        deleted: query.deleted ?? false
+        ...query
     };
 }
 

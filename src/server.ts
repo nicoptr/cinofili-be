@@ -20,6 +20,8 @@ import { HiddenComponentConfigController } from "@controllers/HiddenComponentCon
 import { RoleController } from "@controllers/RoleController";
 import { removeAnsi } from "@utils/prisma";
 import { Container } from "inversify";
+import {EventController} from "@controllers/EventController";
+import {CategoryController} from "@controllers/CategoryController";
 
 export class APIServer {
     private readonly server: FastifyApplication;
@@ -199,6 +201,8 @@ export class APIServer {
                     HiddenComponentConfigController,
                     RoleController,
                     UserController,
+                    EventController,
+                    CategoryController,
                 ].sort((curr, next) => curr.name < next.name ? -1 : 1 )
             ],
             prefix: "/api"

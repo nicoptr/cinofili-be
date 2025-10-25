@@ -3,6 +3,7 @@ export enum PermissionAction {
     READ = "READ",
     UPDATE = "UPDATE",
     DELETE = "DELETE",
+    USER = "USER",
 }
 
 
