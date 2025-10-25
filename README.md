@@ -3,6 +3,8 @@
 Questo progetto è un'utility creata al volo per organizzare una serata degli Oscar con gli amici.
 Permette all'admin di creare un evento e a chiunque di registrarsi e inviare una candidatura, sulla base di una categoria, in forma completamente anonima: il vincitore uscirà allo scoperto solo al momento dell'assegnazione dei premi!
 
+NB: il nome deriva da un errore di battitura dell'organizzatrice, che simpaticamente abbiamo deciso di mantenere, don't be silly!
+
 ## Run locally
 
 1) Setup postgres
