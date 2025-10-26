@@ -10,12 +10,13 @@ RUN yarn install --frozen-lockfile
 
 # Copy source code and build
 COPY . .
+RUN prisma generate
 RUN yarn build
 
 
 # ===== STAGE 2: production runtime =====
 FROM node:18.20.8-alpine
-LABEL maintainer="Carmine Verde <carmine.verde@overzoom.it>"
+LABEL maintainer="Nicola Pietrangelo <nicola.pietrangelo@overzoom.it>"
 
 WORKDIR /app
 
