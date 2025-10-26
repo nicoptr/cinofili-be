@@ -207,7 +207,7 @@ export class APIServer {
                     SubscriptionController,
                 ].sort((curr, next) => curr.name < next.name ? -1 : 1 )
             ],
-            prefix: "/api"
+            prefix: "/sub/api"
         });
     }
 
