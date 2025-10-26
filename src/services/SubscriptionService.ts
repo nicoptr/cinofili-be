@@ -62,6 +62,19 @@ export class SubscriptionService {
 
     }
 
+    public async findByOwner(principal: number, query: SubscriptionQueryDTO, options: PaginateOptions): Promise<PaginateDatasource<Subscription> | null> {
+        const prismaQuery = this.createQueryFromPayload(query);
+
+        if (await hasPermission(principal, {action: PermissionAction.READ, entity: "SUBSCRIPTION", scope: PermissionScope.ALL })) {
+            return await this.subscriptionRepository.paginate(prismaQuery, options);
+        }
+        if (principal !== query.ownerId) {
+            throw new httpErrors.Forbidden("Non puoi vedere le candidature di altri utenti");
+        }
+
+        return await this.subscriptionRepository.paginate(prismaQuery, options);
+    }
+
     public async paginate(query: SubscriptionQueryDTO, options: PaginateOptions): Promise<PaginateDatasource<Subscription> | null> {
 
         const prismaQuery = this.createQueryFromPayload(query);
@@ -113,9 +126,14 @@ export class SubscriptionService {
             createObjectWithoutThrow(payload.value, { description: { contains: payload.value, mode: "insensitive" } }),
         ].filter(o => Object.values(o).length > 0);
 
+        const ownerQuery: Prisma.SubscriptionWhereInput[] = [
+            createObjectWithoutThrow(payload.ownerId, { ownerId: payload.ownerId }),
+        ].filter(o => Object.values(o).length > 0);
+
 
         const query: Prisma.SubscriptionWhereInput[] = [
             createObjectWithoutThrow(valueQuery.length, { OR: valueQuery }),
+            createObjectWithoutThrow(ownerQuery.length, { OR: ownerQuery }),
         ].filter(o => Object.values(o).length > 0);
 
         return {

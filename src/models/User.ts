@@ -7,8 +7,8 @@ export const UserSchema = z.object({
     username: z.string(),
     email: z.string(),
     password: z.string(),
-    avatarUrl: z.string().optional(),
-    note: z.string().optional(),
+    avatarUrl: z.string().optional().nullable(),
+    note: z.string().optional().nullable(),
 
     // Relations
     roles: z.array(RoleToUserSchema).optional(),

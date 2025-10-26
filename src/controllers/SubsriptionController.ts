@@ -105,6 +105,32 @@ export class SubscriptionController {
             .status(200)
             .send(await this.subscriptionService.paginate(query, options));
     }
+
+    @POST("/my", {
+        schema: {
+            operationId: "paginateMySubscription",
+            summary: "Paginate My Subscription",
+            body: SubscriptionPaginateBodyInputSchema,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.USER, "USER", PermissionScope.USER),
+        ],
+    })
+    async paginateMy(
+        req: FastifyRequest<{ Body: SubscriptionPaginateDTO }>,
+        reply: FastifyReply
+    ) {
+        const { query, options } = req.body;
+        reply
+            .status(200)
+            .send(await this.subscriptionService.findByOwner(+req.user.id, { ...query, ownerId: +req.user.id }, options));
+    }
     
     @DELETE("/:id", {
         schema: {

@@ -25,5 +25,6 @@ export type SubscriptionPaginateDTO = z.infer<typeof SubscriptionPaginateBodyInp
 
 export const SubscriptionQuerySchema = z.object({
     value: z.string().optional(),
+    ownerId: z.number().optional(),
 });
 export type SubscriptionQueryDTO = z.infer<typeof SubscriptionQuerySchema>;

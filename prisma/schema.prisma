@@ -113,6 +113,7 @@ model Event {
   subscriptionExpiresAt DateTime
   numberOfParticipants  Int
   subscriptions Subscription[]
+  categories  Category[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -140,7 +141,8 @@ model Category {
   name        String
   description String?
 
-  Subscription Subscription[]
+  subscription Subscription[]
+  events Event[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

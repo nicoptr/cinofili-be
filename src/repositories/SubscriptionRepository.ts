@@ -100,7 +100,7 @@ export class SubscriptionRepository {
                 where: {
                     ...query,
                 },
-                ...setPaginationAndPopulation(options)
+                ...setPaginationAndPopulation({ ...options, populate: "event owner category" })
             });
             const totalDocs = await this.subscriptions.count({ where: evaluateQuery(query) });
             return {
