@@ -8,6 +8,8 @@ export const EventSchema = z.object({
     isActive: z.boolean().optional(),
     subscriptionExpiresAt: z.coerce.date(),
     numberOfParticipants: z.number(),
+    categories: z.number().array().optional().nullish(),
+    participants: z.number().array().optional().nullish(),
 });
 
 export type EventDTO = z.infer<typeof EventSchema>;
@@ -15,7 +17,7 @@ export type EventDTO = z.infer<typeof EventSchema>;
 export const EventCreateSchema = EventSchema;
 export type EventCreateDTO = z.infer<typeof EventCreateSchema>;
 
-export const EventUpdateSchema = EventSchema.partial();
+export const EventUpdateSchema = EventSchema.omit({ categories: true, participants: true }).partial();
 export type EventUpdateDTO = z.infer<typeof EventUpdateSchema>;
 
 export const EventPaginateBodyInputSchema = z.lazy(() => z.object({

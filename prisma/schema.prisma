@@ -35,13 +35,15 @@ model User {
   avatarUrl String?
   note      String?
   roles     RoleToUser[]
+  subscription Subscription[]
+  events Event[]
 
   deleted Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Subscription Subscription[]
+
 }
 
 model Role {
@@ -114,6 +116,7 @@ model Event {
   numberOfParticipants  Int
   subscriptions Subscription[]
   categories  Category[]
+  participants User[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -142,7 +142,7 @@ export class EventController {
             operationId: "updateEvent",
             summary: "Update Event from id",
             params: exz.pathId,
-            body: EventUpdateSchema,
+            body: EventSchema,
             security: [
                 {
                     apiKey: []
@@ -155,10 +155,10 @@ export class EventController {
         ],
     })
     async updateById(
-        req: FastifyRequest<{ Params: { id: string }, Body: EventUpdateDTO }>,
+        req: FastifyRequest<{ Params: { id: string }, Body: EventDTO }>,
         reply: FastifyReply
     ) {
-        const event = await this.eventService.updateById(+req.params.id, EventUpdateSchema.parse(req.body) as EventDTO);
+        const event = await this.eventService.updateById(+req.params.id, EventSchema.parse(req.body) as EventDTO);
         if(!event) {
             throw new httpErrors.NotFound();
         }

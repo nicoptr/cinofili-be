@@ -24,6 +24,17 @@ export class EventRepository {
             return await this.events.create({
                 data: {
                     ...EventCreateSchema.parse(dto),
+                    categories: {
+                        connect: dto.categories?.map(c => ({id: c})) || []
+                    },
+                    participants: {
+                        connect: dto.participants?.map(p => ({id: p})) || []
+                    },
+                },
+                include: {
+                    participants: true,
+                    categories: true,
+                    subscriptions: true,
                 }
             });
         } catch (err: unknown) {
@@ -39,7 +50,26 @@ export class EventRepository {
                 },
                 data: {
                     ...EventUpdateSchema.parse(dto),
+                    ...(
+                        dto.participants ? {
+                            participants: {
+                                set: dto.participants.map(p => ({id: p})) || []
+                            }
+                        } : {}
+                    ),
+                    ...(
+                        dto.categories ? {
+                            categories: {
+                                set: dto.categories.map(p => ({id: p})) || []
+                            }
+                        } : {}
+                    )
                 },
+                include: {
+                    participants: true,
+                    categories: true,
+                    subscriptions: true,
+                }
             });
         } catch (err) {
             throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
@@ -52,7 +82,11 @@ export class EventRepository {
                 where: {
                     id
                 },
-                include: { subscriptions: true }
+                include: {
+                    participants: true,
+                    categories: true,
+                    subscriptions: true,
+                }
             });
         } catch (err) {
             throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
@@ -63,7 +97,11 @@ export class EventRepository {
         try {
             return await this.events.findFirst({
                 where: query,
-                include: { subscriptions: true }
+                include: {
+                    participants: true,
+                    categories: true,
+                    subscriptions: true,
+                }
             });
         } catch (err) {
             throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
@@ -74,7 +112,11 @@ export class EventRepository {
         try {
             return await this.events.findMany({
                 where: evaluateQuery(query),
-                include: { subscriptions: true }
+                include: {
+                    participants: true,
+                    categories: true,
+                    subscriptions: true,
+                }
             });
         } catch (err) {
             throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
@@ -87,7 +129,7 @@ export class EventRepository {
                 where: {
                     ...query,
                 },
-                ...setPaginationAndPopulation(options)
+                ...setPaginationAndPopulation({ ...options, populate: "participants categories subscriptions"})
             });
             const totalDocs = await this.events.count({ where: evaluateQuery(query) });
             return {
