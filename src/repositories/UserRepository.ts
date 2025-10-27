@@ -1,4 +1,4 @@
-import { UserCreateSchema, UserDTO, UserUpdateSchema } from "@models/User";
+import {EventSpecificationDTO, UserCreateSchema, UserDTO, UserUpdateSchema} from "@models/User";
 import { Prisma, User } from "@prisma/client";
 import {
     evaluateQuery,
@@ -46,7 +46,7 @@ export class UserRepository {
                     id
                 },
                 data: {
-                    ...UserUpdateSchema.parse(dto),
+                    ...UserUpdateSchema.omit({eventSpecification: true}).parse(dto),
                     roles: {
                         delete: dto.roles?.filter(role => role.toBeDisconnected).map(relation => ({ id: relation.id })),
                         upsert: dto.roles?.filter(role => !role.toBeDisconnected).map(relation => ({
@@ -61,6 +61,25 @@ export class UserRepository {
                     }
                 },
                 include: { roles: true, }
+            });
+        } catch (err) {
+            throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
+        }
+    }
+
+    async updateEventSpecificationById(id: number, newSpecs: EventSpecificationDTO[]): Promise<User | null> {
+        try {
+            return await this.users.update({
+                where: {
+                    id
+                },
+                data: {
+                    eventSpecification: newSpecs,
+                },
+                include: {
+                    roles: true,
+                    events: true,
+                }
             });
         } catch (err) {
             throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);

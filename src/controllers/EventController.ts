@@ -166,4 +166,33 @@ export class EventController {
             .status(200)
             .send(event);
     }
+
+    @POST("/invite/:id", {
+        schema: {
+            operationId: "inviteParticipants",
+            summary: "Invite participants",
+            params: exz.pathId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.UPDATE, "EVENT", PermissionScope.GOD),
+        ],
+    })
+    async invite(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const result = await this.eventService.invite(+req.params.id);
+        if(!result) {
+            throw new httpErrors.InternalServerError("Errore imprevisto");
+        }
+        reply
+            .status(200)
+            .send(result);
+    }
 }

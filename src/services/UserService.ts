@@ -1,6 +1,6 @@
 import { Service } from "fastify-decorators";
 import { UserRepository } from "@repositories/UserRepository";
-import {UserDTO, UserQueryDTO, UserRegistrationTO} from "@models/User";
+import {EventSpecificationDTO, UserDTO, UserQueryDTO, UserRegistrationTO} from "@models/User";
 import { Prisma, RoleName, User } from "@prisma/client";
 import { encryptPasswordSync } from "@utils/crypto";
 import { FindOptions, PaginateOptions } from "@utils/exz";
@@ -88,6 +88,24 @@ export class UserService {
         }
 
         return await this.userRepository.updateById(userToUpdateId, dto);
+    }
+
+    public async updateEventSpecification(userId: number, newSpecs: EventSpecificationDTO[]): Promise<User | null> {
+
+        const userToUpdate = await this.userRepository.findById(userId, { populate: "roles.role" }) as CompleteUser;
+
+        const existingSpecs = userToUpdate.eventSpecification as EventSpecificationDTO[];
+
+        const mergedSpecs = this.mergeEventSpecs(existingSpecs, newSpecs);
+
+        return await this.userRepository.updateEventSpecificationById(userId, newSpecs);
+    }
+
+    private mergeEventSpecs(oldSpecs: EventSpecificationDTO[], newSpecs: EventSpecificationDTO[]): EventSpecificationDTO[] {
+        return [
+            ...oldSpecs?.filter(o => !newSpecs.some(n => n.eventId === o.eventId)) || [],
+            ...newSpecs
+        ];
     }
 
     public async safeDeleteById(principalId: number, targetUserId: number): Promise<User | null> {

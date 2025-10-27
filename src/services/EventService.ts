@@ -10,10 +10,17 @@ import { CompleteEvent } from "../../prisma/generated/zod";
 import { PermissionAction } from "../enums/PermissionAction";
 import { PermissionScope } from "../enums/PermissionScope";
 import {EventDTO, EventQueryDTO} from "@models/Event";
+import {UserService} from "@services/UserService";
+import {EventSpecificationDTO} from "@models/User";
+import {EmailSenderService} from "@services/EmailSenderService";
 
 @Service()
 export class EventService {
-    constructor(private readonly eventRepository: EventRepository) {}
+    constructor(
+        private readonly eventRepository: EventRepository,
+        private readonly userService: UserService,
+        private readonly emailService: EmailSenderService,
+    ) {}
 
     public async save(dto: EventDTO) {
 
@@ -58,4 +65,66 @@ export class EventService {
             AND: query.length > 0 ? query : undefined,
         };
     };
+
+    public async invite(eventId: number): Promise<boolean> {
+        const event = await this.eventRepository.findById(eventId) as CompleteEvent;
+        if (!event) {
+            throw new httpErrors.NotFound(`Event with id ${eventId} not found`);
+        }
+        if (event.categories.length <= 0) {
+            throw new httpErrors.BadRequest(`L'evento ${event.name} non ha alcuna categoria associata`);
+        }
+        if (event.participants.length <= 0) {
+            throw new httpErrors.BadRequest(`L'evento ${event.name} non ha alcun partecipante associato`);
+        }
+        if (event.participants.length < event.categories.length) {
+            throw new httpErrors.BadRequest(`L'evento ${event.name} non può avere più categorie che partecipanti`);
+        }
+
+        const categoryAssignments = await this.splitCategories(eventId);
+
+
+        for (const a of categoryAssignments) {
+            const savedUser = await this.userService.updateEventSpecification(a.userId, [{
+                eventId: eventId,
+                categoryId: a.categoryId,
+            }]);
+            if (!savedUser) {
+                throw new httpErrors.InternalServerError(`Impossibile notificare tutti gli utenti`);
+            }
+            this.emailService.sendInvitationEmail(savedUser.username,
+                event.name,
+                event.categories.find(c => c.id === a.categoryId)?.name || "undefined",
+                savedUser.email)
+        }
+
+        return true;
+    }
+
+    private async splitCategories(eventId: number): Promise<{userId: number, eventId: number, categoryId: number}[]> {
+        const result = [];
+
+        const event = await this.eventRepository.findById(eventId) as CompleteEvent;
+
+        const shuffledUsers = event.participants.map(v => ({ v, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ v }) => v);
+
+        let index = 0;
+
+        while (shuffledUsers.length > 0) {
+            const user = shuffledUsers.shift()!;
+            const category = event.categories[index % event.categories.length];
+
+            result.push({
+                userId: user.id,
+                categoryId: category!.id,
+                eventId: event.id,
+            });
+            index++;
+        }
+
+        return result;
+
+    }
 }

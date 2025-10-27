@@ -72,7 +72,7 @@ export class EmailSenderService {
                                       Accedi alla piattaforma per verificare tutte le candidature e gestirle.
                                     </p>
                                     <p style="text-align: center;">
-                                      <a href="${process.env.DOMAIN_URL!}/admin" 
+                                      <a href="${process.env.CLIENT_URL!}/admin" 
                                          style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
                                         Accedi ora
                                       </a>
@@ -105,7 +105,7 @@ export class EmailSenderService {
                         la tua candidatura del film "${movieName}" per l'evento "${eventName}" è stata resa non valida dalla Presidentessa.
                         Per poter partecipare, accedi alla piattaforma e modifica il film oppure elimina la candidatura e riprova con un film diverso.
                         Ti ringraziamo per la comprensione e per la tua partecipazione.
-                        Accedi qui: ${process.env.DOMAIN_URL!}
+                        Accedi qui: ${process.env.CLIENT_URL!}
                         Un caro saluto,  
                         Il team organizzativo`;
 
@@ -136,7 +136,7 @@ export class EmailSenderService {
                                       Ti ringraziamo per la comprensione e per la tua partecipazione al nostro evento.
                                     </p>
                                     <p style="text-align: center;">
-                                      <a href="${process.env.DOMAIN_URL!}" 
+                                      <a href="${process.env.CLIENT_URL!}" 
                                          style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
                                         Accedi alla piattaforma
                                       </a>
@@ -157,6 +157,69 @@ export class EmailSenderService {
                 text: text,
                 html: html,
             })
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public async sendInvitationEmail(participantName: string, eventName: string, categoryName: string, recipient: string) {
+
+        const text = `Ciao ${participantName},
+                    la Presidentessa ti ha invitato a partecipare all'evento "${eventName}" con la categoria "${categoryName}".
+                    Ricorda che la tua categoria e la tua candidatura devono rimanere segrete, neanche la Presidentessa deve essere informata.
+                    Questa è un messaggio autogenerato e deve rimanere tra noi ;)
+                    Accedi alla piattaforma per candidare un film: ${process.env.CLIENT_URL!}
+                    Un caro saluto,  
+                    Il team organizzativo`;
+
+        const html = `<!DOCTYPE html>
+                      <html lang="it">
+                        <head>
+                          <meta charset="UTF-8" />
+                          <title>Invito a partecipare</title>
+                        </head>
+                        <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
+                          <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
+                            <tr>
+                              <td style="background-color: #4f46e5; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
+                                Invito a partecipare 🎉
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 24px;">
+                                <p style="margin: 0 0 16px 0;">Ciao <strong>${participantName}</strong>,</p>
+                                <p style="margin: 0 0 16px 0;">
+                                  La Presidentessa ti ha invitato a partecipare all'evento <strong>"${eventName}"</strong> con la categoria <strong>"${categoryName}"</strong>.
+                                </p>
+                                <p style="margin: 0 0 16px 0;">
+                                  Ricorda che la tua categoria e la tua candidatura devono rimanere segrete, neanche la Presidentessa deve essere informata.
+                                </p>
+                                <p style="margin: 0 0 24px 0;">
+                                  Questa è un messaggio autogenerato e deve rimanere tra noi ;)
+                                </p>
+                                <p style="text-align: center;">
+                                  <a href="${process.env.CLIENT_URL!}" 
+                                     style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
+                                    Accedi alla piattaforma
+                                  </a>
+                                </p>
+                                <p style="margin-top: 32px; font-size: 14px; color: #777;">
+                                  Un caro saluto,<br />
+                                  <strong>Il team organizzativo</strong>
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </body>
+                      </html>`;
+
+        try {
+            await this.sendEmail({
+                to: recipient,
+                subject: "Sei stato invitato a partecipare!",
+                text: text,
+                html: html,
+            });
         } catch (e) {
             console.error(e);
         }

@@ -1,6 +1,12 @@
 import * as z from "zod"
 import { CompleteRoleToUser, RelatedRoleToUserModel, CompleteSubscription, RelatedSubscriptionModel, CompleteEvent, RelatedEventModel } from "./index"
 
+// Helper schema for JSON fields
+type Literal = boolean | number | string | null
+type Json = Literal | { [key: string]: Json } | Json[]
+const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
+const jsonSchema: z.ZodSchema<Json> = z.lazy(() => z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)]))
+
 export const UserModel = z.object({
   id: z.number().int(),
   username: z.string(),
@@ -8,6 +14,7 @@ export const UserModel = z.object({
   password: z.string(),
   avatarUrl: z.string().nullish(),
   note: z.string().nullish(),
+  eventSpecification: jsonSchema,
   deleted: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),

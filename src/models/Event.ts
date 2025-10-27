@@ -6,6 +6,7 @@ export const EventSchema = z.object({
     name: z.string(),
     description: z.string().optional(),
     isActive: z.boolean().optional(),
+    expiresAt: z.coerce.date(),
     subscriptionExpiresAt: z.coerce.date(),
     numberOfParticipants: z.number(),
     categories: z.number().array().optional().nullish(),

@@ -10,7 +10,7 @@ export const seed_users: { id: number, isToBeSeeded: boolean, dto: UserDTO }[] =
 
     dto: {
       username: process.env.GOD_USERNAME!,
-      email: "god@overzoom.it",
+      email: process.env.GOD_EMAIL!,
       password: encryptPasswordSync(process.env.GOD_PASSWORD!),
       avatarUrl: `https://ui-avatars.com/api/?name=${ process.env.GOD_USERNAME! }`,
       roles: [

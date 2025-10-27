@@ -28,22 +28,21 @@ datasource db {
 }
 
 model User {
-  id        Int          @id @default(autoincrement())
-  username  String       @unique
-  email     String       @unique
-  password  String
-  avatarUrl String?
-  note      String?
-  roles     RoleToUser[]
-  subscription Subscription[]
-  events Event[]
+  id                 Int            @id @default(autoincrement())
+  username           String         @unique
+  email              String         @unique
+  password           String
+  avatarUrl          String?
+  note               String?
+  roles              RoleToUser[]
+  subscription       Subscription[]
+  events             Event[]
+  eventSpecification Json?
 
   deleted Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-
 }
 
 model Role {
@@ -107,46 +106,44 @@ model HiddenComponentConfig {
 }
 
 model Event {
-  id                    Int       @id @default(autoincrement())
+  id                    Int            @id @default(autoincrement())
   name                  String
   description           String?
-  isActive              Boolean?  @default(true)
+  isActive              Boolean?       @default(true)
   expiresAt             DateTime?
   subscriptionExpiresAt DateTime
   numberOfParticipants  Int
-  subscriptions Subscription[]
-  categories  Category[]
-  participants User[]
+  subscriptions         Subscription[]
+  categories            Category[]
+  participants          User[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Subscription {
-  id           Int       @id @default(autoincrement())
-  ownerId      Int
-  owner        User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  movieName    String
-  isValid      Boolean?  @default(true)
-  category     Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  id         Int       @id @default(autoincrement())
+  ownerId    Int
+  owner      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  movieName  String
+  isValid    Boolean?  @default(true)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId Int
-  eventId Int
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    Int
+  event      Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-
 }
 
 model Category {
-  id           Int       @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   description String?
 
   subscription Subscription[]
-  events Event[]
+  events       Event[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
