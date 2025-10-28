@@ -12,7 +12,7 @@ import {EventService} from "@services/EventService";
 import {hasPermission} from "@utils/permission";
 import {PermissionScope} from "../enums/PermissionScope";
 import {EmailSenderService} from "@services/EmailSenderService";
-import {UserService} from "@services/UserService";
+import {DateTime} from "luxon";
 import process from "process";
 
 @Service()
@@ -25,6 +25,14 @@ export class SubscriptionService {
 
     public async create(principal: number, dto: SubscriptionDTO) {
         const event = await this.eventService.findById(dto.eventId) as CompleteEvent;
+
+        if (DateTime.fromJSDate(event.subscriptionExpiresAt) < DateTime.local()) {
+            throw new httpErrors.BadRequest("Le candidature sono chiuse per questo evento, chiedi alla Presidentessa di estendere la data se ne hai bisogno");
+        }
+
+        if (!event.isActive) {
+            throw new httpErrors.BadRequest("Questo evento non è più disponibile. Contattare la Presidentessa");
+        }
 
         if (event.subscriptions.find(s => s.ownerId === principal)) {
             throw new httpErrors.BadRequest("Hai già candidato un film per questo evento");
