@@ -72,7 +72,7 @@ export class EmailSenderService {
                                       Accedi alla piattaforma per verificare tutte le candidature e gestirle.
                                     </p>
                                     <p style="text-align: center;">
-                                      <a href="${process.env.CLIENT_URL!}/admin" 
+                                      <a href="${process.env.CLIENT_URL!}" 
                                          style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
                                         Accedi ora
                                       </a>
