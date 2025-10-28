@@ -84,7 +84,12 @@ export class SubscriptionService {
 
     public async updateById(principal: number, subscriptionToUpdateId: number, dto: SubscriptionUpdateDTO): Promise<Subscription | null> {
         if (await hasPermission(principal, {action: PermissionAction.UPDATE, entity: "SUBSCRIPTION", scope: PermissionScope.GOD })) {
-            return await this.subscriptionRepository.updateById(subscriptionToUpdateId, dto);
+            const sub = await this.subscriptionRepository.updateById(subscriptionToUpdateId, { ...dto, isValid: true }) as CompleteSubscription;
+            if (sub) {
+                const recipient = process.env.GOD_EMAIL!;
+                this.emailSender.sendSubscriptionEmail(sub.event.name, sub.movieName, sub.category!.name!, recipient);
+            }
+            return sub as Subscription;
         }
         const subscription = await this.subscriptionRepository.findById(subscriptionToUpdateId);
         if (!subscription) {
@@ -93,7 +98,12 @@ export class SubscriptionService {
         if (subscription.ownerId !== principal) {
             throw new httpErrors.BadRequest("Non puoi modificare candidature di altri utenti");
         }
-        return await this.subscriptionRepository.updateById(subscriptionToUpdateId, { ...dto, isValid: true });
+        const sub = await this.subscriptionRepository.updateById(subscriptionToUpdateId, { ...dto, isValid: true }) as CompleteSubscription;
+        if (sub) {
+            const recipient = process.env.GOD_EMAIL!;
+            this.emailSender.sendSubscriptionEmail(sub.event.name, sub.movieName, sub.category!.name!, recipient);
+        }
+        return sub as Subscription;
     }
 
     public async invalidate(principal: number, subscriptionToInvalidateId: number): Promise<Subscription | null> {
