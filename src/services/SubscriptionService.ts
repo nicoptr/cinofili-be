@@ -21,7 +21,6 @@ export class SubscriptionService {
         private readonly subscriptionRepository: SubscriptionRepository,
         private readonly eventService: EventService,
         private readonly emailSender: EmailSenderService,
-        private readonly userService: UserService,
     ) {}
 
     public async create(principal: number, dto: SubscriptionDTO) {
@@ -86,8 +85,7 @@ export class SubscriptionService {
         if (await hasPermission(principal, {action: PermissionAction.UPDATE, entity: "SUBSCRIPTION", scope: PermissionScope.GOD })) {
             const sub = await this.subscriptionRepository.updateById(subscriptionToUpdateId, { ...dto, isValid: true }) as CompleteSubscription;
             if (sub) {
-                const recipient = process.env.GOD_EMAIL!;
-                this.emailSender.sendSubscriptionEmail(sub.event.name, sub.movieName, sub.category!.name!, recipient);
+                this.emailSender.sendSubscriptionUpdateEmail(sub.event.name, sub.movieName, sub.category!.name!, process.env.GOD_EMAIL!);
             }
             return sub as Subscription;
         }
@@ -100,14 +98,13 @@ export class SubscriptionService {
         }
         const sub = await this.subscriptionRepository.updateById(subscriptionToUpdateId, { ...dto, isValid: true }) as CompleteSubscription;
         if (sub) {
-            const recipient = process.env.GOD_EMAIL!;
-            this.emailSender.sendSubscriptionEmail(sub.event.name, sub.movieName, sub.category!.name!, recipient);
+            this.emailSender.sendSubscriptionUpdateEmail(sub.event.name, sub.movieName, sub.category!.name!, process.env.GOD_EMAIL!);
         }
         return sub as Subscription;
     }
 
     public async invalidate(principal: number, subscriptionToInvalidateId: number): Promise<Subscription | null> {
-        const sub = await this.updateById(principal, subscriptionToInvalidateId, { isValid: false }) as CompleteSubscription;
+        const sub = await this.subscriptionRepository.updateById(subscriptionToInvalidateId, { isValid: false }) as CompleteSubscription
         if (sub) {
             const recipient = sub.owner.email;
             this.emailSender.sendInvalidationEmail(sub.owner.username, sub.event.name, sub.movieName, recipient);
