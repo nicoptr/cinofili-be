@@ -12,7 +12,7 @@ import {EventService} from "@services/EventService";
 import {hasPermission} from "@utils/permission";
 import {PermissionScope} from "../enums/PermissionScope";
 import {EmailSenderService} from "@services/EmailSenderService";
-import {DateTime} from "luxon";
+import { DateTime } from 'luxon';
 import process from "process";
 
 @Service()
