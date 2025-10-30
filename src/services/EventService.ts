@@ -13,6 +13,7 @@ import {EventDTO, EventQueryDTO} from "@models/Event";
 import {UserService} from "@services/UserService";
 import {EventSpecificationDTO} from "@models/User";
 import {EmailSenderService} from "@services/EmailSenderService";
+import {formatItaliaDate} from "@utils/date";
 
 @Service()
 export class EventService {
@@ -94,6 +95,8 @@ export class EventService {
             }
             this.emailService.sendInvitationEmail(savedUser.username,
                 event.name,
+                formatItaliaDate(event.subscriptionExpiresAt),
+                formatItaliaDate(event.expiresAt),
                 event.categories.find(c => c.id === a.categoryId)?.name || "undefined",
                 savedUser.email)
         }

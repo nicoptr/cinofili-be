@@ -33,7 +33,7 @@ export class EmailSenderService {
             };
 
             const info = await this.transporter.sendMail(mailOptions);
-            console.log(`✅ Email inviata: ${info.messageId}`);
+            console.log(`✅ Email inviata. Destinatario <${options.to}> ${info.messageId}`);
         } catch (error) {
             console.error("❌ Errore durante l'invio dell'email:", error);
             throw error;
@@ -219,10 +219,11 @@ export class EmailSenderService {
         }
     }
 
-    public async sendInvitationEmail(participantName: string, eventName: string, categoryName: string, recipient: string) {
+    public async sendInvitationEmail(participantName: string, eventName: string, subscriptionExpiryDateString: string, expiryDateString: string, categoryName: string, recipient: string) {
 
         const text = `Ciao ${participantName},
                     la Presidentessa ti ha invitato a partecipare all'evento "${eventName}" con la categoria "${categoryName}".
+                    Le candidature terminano il ${subscriptionExpiryDateString} e la premiazione si terrà il ${subscriptionExpiryDateString}
                     Ricorda che la tua categoria e la tua candidatura devono rimanere segrete, neanche la Presidentessa deve essere informata.
                     Questa è un messaggio autogenerato e deve rimanere tra noi ;)
                     Accedi alla piattaforma per candidare un film: ${process.env.CLIENT_URL!}
@@ -249,7 +250,10 @@ export class EmailSenderService {
                                   La Presidentessa ti ha invitato a partecipare all'evento <strong>"${eventName}"</strong> con la categoria <strong>"${categoryName}"</strong>.
                                 </p>
                                 <p style="margin: 0 0 16px 0;">
-                                  Ricorda che la tua categoria e la tua candidatura devono rimanere segrete, neanche la Presidentessa deve essere informata.
+                                  Le candidature terminano il <strong>"${subscriptionExpiryDateString}"</strong> e la premiazione si terrà il  <strong>"${expiryDateString}"</strong>.
+                                </p>
+                                <p style="margin: 0 0 16px 0;">
+                                  Ricorda che la tua categoria e la tua candidatura devono rimanere <strong>segrete</strong>, neanche la Presidentessa deve essere informata.
                                 </p>
                                 <p style="margin: 0 0 24px 0;">
                                   Questa è un messaggio autogenerato e deve rimanere tra noi ;)
