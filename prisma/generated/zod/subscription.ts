@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { CompleteUser, RelatedUserModel, CompleteCategory, RelatedCategoryModel, CompleteEvent, RelatedEventModel } from "./index"
+import { CompleteUser, RelatedUserModel, CompleteCategory, RelatedCategoryModel, CompleteEvent, RelatedEventModel, CompleteAnswer, RelatedAnswerModel } from "./index"
 
 export const SubscriptionModel = z.object({
   id: z.number().int(),
@@ -16,6 +16,7 @@ export interface CompleteSubscription extends z.infer<typeof SubscriptionModel> 
   owner: CompleteUser
   category?: CompleteCategory | null
   event: CompleteEvent
+  scorecard: CompleteAnswer[]
 }
 
 /**
@@ -27,4 +28,5 @@ export const RelatedSubscriptionModel: z.ZodSchema<CompleteSubscription> = z.laz
   owner: RelatedUserModel,
   category: RelatedCategoryModel.nullish(),
   event: RelatedEventModel,
+  scorecard: RelatedAnswerModel.array(),
 }))
