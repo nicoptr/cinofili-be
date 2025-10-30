@@ -250,7 +250,7 @@ export class EmailSenderService {
                                   La Presidentessa ti ha invitato a partecipare all'evento <strong>"${eventName}"</strong> con la categoria <strong>"${categoryName}"</strong>.
                                 </p>
                                 <p style="margin: 0 0 16px 0;">
-                                  Le candidature terminano il <strong>"${subscriptionExpiryDateString}"</strong> e la premiazione si terrà il  <strong>"${expiryDateString}"</strong>.
+                                  Le candidature terminano il <strong>${subscriptionExpiryDateString}</strong> e la premiazione si terrà il  <strong>${expiryDateString}</strong>.
                                 </p>
                                 <p style="margin: 0 0 16px 0;">
                                   Ricorda che la tua categoria e la tua candidatura devono rimanere <strong>segrete</strong>, neanche la Presidentessa deve essere informata.

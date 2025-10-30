@@ -11,7 +11,7 @@ import { PermissionAction } from "../enums/PermissionAction";
 import { PermissionScope } from "../enums/PermissionScope";
 import {EventDTO, EventQueryDTO} from "@models/Event";
 import {UserService} from "@services/UserService";
-import {EventSpecificationDTO} from "@models/User";
+import {EventSpecificationDTO, EventSpecificationSchema} from "@models/User";
 import {EmailSenderService} from "@services/EmailSenderService";
 import {formatItaliaDate} from "@utils/date";
 
@@ -100,6 +100,38 @@ export class EventService {
                 event.categories.find(c => c.id === a.categoryId)?.name || "undefined",
                 savedUser.email)
         }
+
+        return true;
+    }
+
+    public async reinvite(eventId: number): Promise<boolean> {
+        const event = await this.eventRepository.findById(eventId) as CompleteEvent;
+        if (!event) {
+            throw new httpErrors.NotFound(`Event with id ${eventId} not found`);
+        }
+        if (event.categories.length <= 0) {
+            throw new httpErrors.BadRequest(`L'evento ${event.name} non ha alcuna categoria associata`);
+        }
+        if (event.participants.length <= 0) {
+            throw new httpErrors.BadRequest(`L'evento ${event.name} non ha alcun partecipante associato`);
+        }
+        if (event.participants.length < event.categories.length) {
+            throw new httpErrors.BadRequest(`L'evento ${event.name} non può avere più categorie che partecipanti`);
+        }
+
+        for (const participant of event.participants) {
+            for (const assignment of participant.eventSpecification as EventSpecificationDTO[]) {
+                if (assignment.eventId === eventId) {
+                    this.emailService.sendInvitationEmail(participant.username,
+                        event.name,
+                        formatItaliaDate(event.subscriptionExpiresAt),
+                        formatItaliaDate(event.expiresAt),
+                        event.categories.find(c => c.id === assignment.categoryId)?.name || "undefined",
+                        participant.email)
+                }
+            }
+        }
+
 
         return true;
     }

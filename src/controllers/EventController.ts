@@ -195,4 +195,33 @@ export class EventController {
             .status(200)
             .send(result);
     }
+
+    @POST("/reinvite/:id", {
+        schema: {
+            operationId: "reinviteParticipants",
+            summary: "Reinvite participants",
+            params: exz.pathId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.UPDATE, "EVENT", PermissionScope.GOD),
+        ],
+    })
+    async reinvite(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const result = await this.eventService.reinvite(+req.params.id);
+        if(!result) {
+            throw new httpErrors.InternalServerError("Errore imprevisto");
+        }
+        reply
+            .status(200)
+            .send(result);
+    }
 }
