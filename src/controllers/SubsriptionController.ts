@@ -4,7 +4,7 @@ import {
     SubscriptionCreateDTO,
     SubscriptionDTO,
     SubscriptionPaginateBodyInputSchema,
-    SubscriptionPaginateDTO,
+    SubscriptionPaginateDTO, SubscriptionPlanDTO, SubscriptionPlanSchema,
     SubscriptionSchema,
     SubscriptionUpdateDTO,
     SubscriptionUpdateSchema,
@@ -191,6 +191,36 @@ export class SubscriptionController {
             .send(subscription);
     }
 
+    @PATCH("/plan/:id", {
+        schema: {
+            operationId: "planSubscriptionProjection",
+            summary: "Plan Subscription projection by id",
+            params: exz.pathId,
+            body: SubscriptionPlanSchema,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.UPDATE, "SUBSCRIPTION", PermissionScope.GOD),
+        ],
+    })
+    async updatePlanningById(
+        req: FastifyRequest<{ Params: { id: string }, Body: SubscriptionPlanDTO }>,
+        reply: FastifyReply
+    ) {
+        const subscription = await this.subscriptionService.updatePlanningById(+req.params.id, SubscriptionPlanSchema.parse(req.body));
+        if(!subscription) {
+            throw new httpErrors.NotFound();
+        }
+        reply
+            .status(200)
+            .send(subscription);
+    }
+
     @PATCH("/invalidate/:id", {
         schema: {
             operationId: "invalidateSubscription",
@@ -218,5 +248,34 @@ export class SubscriptionController {
         reply
             .status(200)
             .send(subscription);
+    }
+
+    @GET("/next/:eventId", {
+        schema: {
+            operationId: "getNextSubscriptionToProject",
+            summary: "Get next subscription to project",
+            params: exz.pathEventId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.UPDATE, "SUBSCRIPTION", PermissionScope.SINGLE),
+        ],
+    })
+    async nextProjection(
+        req: FastifyRequest<{ Params: { eventId: string } }>,
+        reply: FastifyReply
+    ) {
+        const result = await this.subscriptionService.unlockNextProjection(+req.params.eventId);
+        if(!result) {
+            throw new httpErrors.InternalServerError();
+        }
+        reply
+            .status(200)
+            .send(result);
     }
 }

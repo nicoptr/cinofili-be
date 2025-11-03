@@ -51,6 +51,10 @@ export class UserService {
         return await this.userRepository.findById(wantedUserId, options);
     }
 
+    public async findProfileById( wantedUserId: number): Promise<User | null> {
+        return await this.userRepository.findProfileById(wantedUserId);
+    }
+
     public async findOne(query: Prisma.UserWhereInput, options?: FindOptions): Promise<User | null> {
         return await this.userRepository.findOne(query, options);
     }

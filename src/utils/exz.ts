@@ -17,6 +17,10 @@ export const exz= {
         id: z.string().describe("Must follow id")
     }),
 
+    pathEventId: z.object({
+        eventId: z.string().describe("Must follow id")
+    }),
+
     /**
      * Example for customer send: "orders invoices ..."
      */

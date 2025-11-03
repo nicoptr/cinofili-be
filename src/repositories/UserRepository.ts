@@ -99,6 +99,21 @@ export class UserRepository {
         }
     }
 
+    async findProfileById(id: number): Promise<User | null> {
+        try {
+            return await this.users.findUniqueOrThrow({
+                where: {
+                    id
+                },
+                include: {
+                    roles: true,
+                }
+            });
+        } catch (err) {
+            throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
+        }
+    }
+
     async findOne(query: Prisma.UserWhereInput, options?: FindOptions): Promise<User | null> {
         try {
             return await this.users.findFirst({

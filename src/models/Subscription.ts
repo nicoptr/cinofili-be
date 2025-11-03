@@ -11,6 +11,12 @@ export const SubscriptionSchema = z.object({
 
 export type SubscriptionDTO = z.infer<typeof SubscriptionSchema>;
 
+export const SubscriptionPlanSchema = z.object({
+    projectAt: z.coerce.date().nullish().nullable(),
+});
+
+export type SubscriptionPlanDTO = z.infer<typeof SubscriptionPlanSchema>;
+
 export const SubscriptionCreateSchema = SubscriptionSchema;
 export type SubscriptionCreateDTO = z.infer<typeof SubscriptionCreateSchema>;
 

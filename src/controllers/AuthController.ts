@@ -3,6 +3,7 @@ import { Controller, GET, POST } from "fastify-decorators";
 import { AuthService } from "@services/AuthService";
 import { LoginDTO, LoginInputSchema, LoginResponseSchema } from "@models/Auth";
 import { Authenticate } from "@middleware/Authenticate";
+import {UserService} from "@services/UserService";
 
 @Controller({
     route: "/auth",
@@ -10,7 +11,10 @@ import { Authenticate } from "@middleware/Authenticate";
 })
 export class AuthController {
 
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly userService: UserService
+    ){}
 
     @POST("/login", {
         schema: {
@@ -47,6 +51,6 @@ export class AuthController {
         ],
     })
     async getProfile(req: FastifyRequest, reply: FastifyReply) {
-        reply.status(200).send(req.user);
+        reply.status(200).send(await this.userService.findProfileById(req.user.id));
     }
 }

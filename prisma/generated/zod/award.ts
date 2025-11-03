@@ -1,11 +1,12 @@
 import * as z from "zod"
-import { CompleteQuestion, RelatedQuestionModel, CompleteEvent, RelatedEventModel } from "./index"
+import { CompleteQuestion, RelatedQuestionModel, CompleteEvent, RelatedEventModel, CompleteUser, RelatedUserModel } from "./index"
 
 export const AwardModel = z.object({
   id: z.number().int(),
   name: z.string(),
   description: z.string(),
   questionId: z.number().int().nullish(),
+  winnerId: z.number().int().nullish(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
@@ -13,6 +14,7 @@ export const AwardModel = z.object({
 export interface CompleteAward extends z.infer<typeof AwardModel> {
   question?: CompleteQuestion | null
   events: CompleteEvent[]
+  winner?: CompleteUser | null
 }
 
 /**
@@ -23,4 +25,5 @@ export interface CompleteAward extends z.infer<typeof AwardModel> {
 export const RelatedAwardModel: z.ZodSchema<CompleteAward> = z.lazy(() => AwardModel.extend({
   question: RelatedQuestionModel.nullish(),
   events: RelatedEventModel.array(),
+  winner: RelatedUserModel.nullish(),
 }))

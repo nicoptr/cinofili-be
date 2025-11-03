@@ -62,6 +62,67 @@ export class SubscriptionRepository {
         }
     }
 
+    async updateReadyForProjectionById(id: number, isReadyForProjection: boolean): Promise<Subscription | null> {
+        try {
+            return await this.subscriptions.update({
+                where: {
+                    id
+                },
+                data: {
+                    isReadyForProjection
+                },
+                include: {
+                    owner: true,
+                    event: true,
+                    category: true,
+                }
+            });
+        } catch (err) {
+            throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
+        }
+    }
+
+    async updateProjectionOrderById(id: number, projectionOrder: number): Promise<Subscription | null> {
+        try {
+            return await this.subscriptions.update({
+                where: {
+                    id
+                },
+                data: {
+                    projectionOrder
+                },
+                include: {
+                    owner: true,
+                    event: true,
+                    category: true,
+                }
+            });
+        } catch (err) {
+            throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
+        }
+    }
+
+    async updateProjectionDateById(id: number, projectAt: Date | null | undefined): Promise<Subscription | null> {
+        try {
+            return await this.subscriptions.update({
+                where: {
+                    id
+                },
+                data: {
+                    projectAt,
+                    isProjectionPlanned: !!projectAt,
+                },
+                include: {
+                    owner: true,
+                    event: true,
+                    category: true,
+                }
+            });
+        } catch (err) {
+            throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
+        }
+    }
+
     async findById(id: number, options?: FindOptions): Promise<Subscription | null> {
         try {
             return await this.subscriptions.findUniqueOrThrow({

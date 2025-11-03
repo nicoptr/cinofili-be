@@ -7,7 +7,7 @@ import {createObjectWithoutThrow} from "@utils/query";
 import httpErrors from "http-errors";
 import {CompleteEvent, CompleteSubscription} from "../../prisma/generated/zod";
 import {PermissionAction} from "../enums/PermissionAction";
-import {SubscriptionDTO, SubscriptionQueryDTO, SubscriptionUpdateDTO} from "@models/Subscription";
+import {SubscriptionDTO, SubscriptionPlanDTO, SubscriptionQueryDTO, SubscriptionUpdateDTO} from "@models/Subscription";
 import {EventService} from "@services/EventService";
 import {hasPermission} from "@utils/permission";
 import {PermissionScope} from "../enums/PermissionScope";
@@ -111,6 +111,16 @@ export class SubscriptionService {
         return sub as Subscription;
     }
 
+    public async updatePlanningById(subscriptionToUpdateId: number, dto: SubscriptionPlanDTO): Promise<Subscription | null> {
+        const plannedSubscription = await this.subscriptionRepository.updateProjectionDateById(subscriptionToUpdateId, dto.projectAt);
+
+        // send email to all participant
+        // this.emailSender.sendSubscriptionUpdateEmail(sub.event.name, sub.movieName, sub.category!.name!, process.env.GOD_EMAIL!);
+
+        return plannedSubscription;
+
+    }
+
     public async invalidate(principal: number, subscriptionToInvalidateId: number): Promise<Subscription | null> {
         const sub = await this.subscriptionRepository.updateById(subscriptionToInvalidateId, { isValid: false }) as CompleteSubscription
         if (sub) {
@@ -155,4 +165,73 @@ export class SubscriptionService {
             AND: query.length > 0 ? query : undefined,
         };
     };
+
+    public async unlockNextProjection(eventId: number): Promise<boolean | null> {
+        const event = await this.eventService.findById(eventId) as CompleteEvent;
+
+        if (DateTime.fromJSDate(event.subscriptionExpiresAt) < DateTime.local()) {
+            throw new httpErrors.BadRequest("Non puoi sbloccare le proiezioni prima che le candidature siano chiuse");
+        }
+
+        if (!event) {
+            throw new httpErrors.NotFound("Nessun evento trovato con l'id fornito");
+        }
+
+        if (!event.subscriptions.filter(s => !s.isReadyForProjection).length) {
+            throw httpErrors.BadRequest("Hai già svelato tutti gli eventi");
+        }
+
+        if (!event.subscriptions.filter(s => s.projectionOrder).length) {
+            const projectionTemplate = await this.splitSubsByCategories(eventId);
+
+            for (const template of projectionTemplate) {
+                await this.subscriptionRepository.updateProjectionOrderById(template.subscriptionId, template.projectionOrder);
+                template.projectionOrder === 1 && await this.subscriptionRepository.updateReadyForProjectionById(template.subscriptionId, true);
+            }
+
+            return true;
+        }
+
+        // sort subscription by asc projection order
+        // get last not ready for projection
+        const nextProjection = event.subscriptions.filter(s => !s.isReadyForProjection)
+            .sort((a, b) => a.projectionOrder! - a.projectionOrder!)[0];
+
+        if (!nextProjection) {
+            throw httpErrors.InternalServerError("Impossibile svelare la prossima proiezione")
+        }
+
+        // set ready for projection
+        await this.subscriptionRepository.updateReadyForProjectionById(nextProjection.id, true);
+
+
+        return true;
+
+    }
+
+    private async splitSubsByCategories(eventId: number) {
+
+        const result = [];
+
+        const event = await this.eventService.findById(eventId) as CompleteEvent;
+
+        const shuffledSubs = event.subscriptions!.map(s => ({ s, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({s}) => s);
+
+        let index = 0;
+
+        while (shuffledSubs.length > 0) {
+            const sub = shuffledSubs.shift();
+
+            result.push({
+                subscriptionId: sub!.id,
+                projectionOrder: index + 1,
+            });
+
+            index ++;
+        }
+
+        return result;
+    }
 }
