@@ -114,7 +114,11 @@ export class SubscriptionRepository {
                 },
                 include: {
                     owner: true,
-                    event: true,
+                    event: {
+                        include: {
+                            participants: true
+                        }
+                    },
                     category: true,
                 }
             });

@@ -14,6 +14,7 @@ import {PermissionScope} from "../enums/PermissionScope";
 import {EmailSenderService} from "@services/EmailSenderService";
 import { DateTime } from 'luxon';
 import process from "process";
+import {formatItaliaDate} from "@utils/date";
 
 @Service()
 export class SubscriptionService {
@@ -112,12 +113,20 @@ export class SubscriptionService {
     }
 
     public async updatePlanningById(subscriptionToUpdateId: number, dto: SubscriptionPlanDTO): Promise<Subscription | null> {
-        const plannedSubscription = await this.subscriptionRepository.updateProjectionDateById(subscriptionToUpdateId, dto.projectAt);
+
+        if (dto.projectAt && DateTime.fromJSDate(dto.projectAt) < DateTime.local()) {
+            throw new httpErrors.BadRequest("Non puoi proiettare un film nel passato? ti sembra Ritorno al futuro?")
+        }
+
+        const plannedSubscription = await this.subscriptionRepository.updateProjectionDateById(subscriptionToUpdateId, dto.projectAt) as CompleteSubscription;
 
         // send email to all participant
-        // this.emailSender.sendSubscriptionUpdateEmail(sub.event.name, sub.movieName, sub.category!.name!, process.env.GOD_EMAIL!);
+        this.emailSender.sendPlannedProjectionEmail(plannedSubscription.event.name,
+            formatItaliaDate(plannedSubscription.projectAt),
+            plannedSubscription.category?.name || "CATEGORIA",
+            plannedSubscription.event.participants.map(p => p.email));
 
-        return plannedSubscription;
+        return plannedSubscription as Subscription;
 
     }
 
@@ -169,8 +178,12 @@ export class SubscriptionService {
     public async unlockNextProjection(eventId: number): Promise<boolean | null> {
         const event = await this.eventService.findById(eventId) as CompleteEvent;
 
-        if (DateTime.fromJSDate(event.subscriptionExpiresAt) < DateTime.local()) {
+        if (DateTime.fromJSDate(event.subscriptionExpiresAt) > DateTime.local()) {
             throw new httpErrors.BadRequest("Non puoi sbloccare le proiezioni prima che le candidature siano chiuse");
+        }
+
+        if (event.numberOfParticipants > event.subscriptions.length) {
+            throw new httpErrors.BadRequest("Non puoi sbloccare le proiezioni prima che tutte le candidature siano presentate");
         }
 
         if (!event) {
@@ -181,6 +194,7 @@ export class SubscriptionService {
             throw httpErrors.BadRequest("Hai già svelato tutti gli eventi");
         }
 
+        // if it's the first time I need to generate the sequence first
         if (!event.subscriptions.filter(s => s.projectionOrder).length) {
             const projectionTemplate = await this.splitSubsByCategories(eventId);
 
@@ -191,6 +205,13 @@ export class SubscriptionService {
 
             return true;
         }
+
+        // check if user can go ahead
+        event.subscriptions.filter(s => s.isReadyForProjection).forEach((projection) => {
+            if (!projection.projectAt || DateTime.fromJSDate(projection.projectAt) > DateTime.local()) {
+                throw new httpErrors.BadRequest("Non puoi svelare il prossimo film senza aver proiettato quello attualmente in programmazione")
+            }
+        })
 
         // sort subscription by asc projection order
         // get last not ready for projection
