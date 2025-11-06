@@ -10,6 +10,7 @@ export const SubscriptionModel = z.object({
   isReadyForProjection: z.boolean().nullish(),
   isReadyForRating: z.boolean().nullish(),
   projectAt: z.date().nullish(),
+  location: z.string().nullish(),
   projectionOrder: z.number().int().nullish(),
   categoryId: z.number().int(),
   eventId: z.number().int(),

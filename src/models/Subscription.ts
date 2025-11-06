@@ -13,6 +13,7 @@ export type SubscriptionDTO = z.infer<typeof SubscriptionSchema>;
 
 export const SubscriptionPlanSchema = z.object({
     projectAt: z.coerce.date().nullish().nullable(),
+    location: z.string(),
 });
 
 export type SubscriptionPlanDTO = z.infer<typeof SubscriptionPlanSchema>;

@@ -118,11 +118,11 @@ export class SubscriptionService {
             throw new httpErrors.BadRequest("Non puoi proiettare un film nel passato? ti sembra Ritorno al futuro?")
         }
 
-        const plannedSubscription = await this.subscriptionRepository.updateProjectionDateById(subscriptionToUpdateId, dto.projectAt) as CompleteSubscription;
+        const plannedSubscription = await this.subscriptionRepository.updateProjectionPlanningById(subscriptionToUpdateId, dto.projectAt, dto.location) as CompleteSubscription;
 
         // send email to all participant
         this.emailSender.sendPlannedProjectionEmail(plannedSubscription.event.name,
-            formatItaliaDate(plannedSubscription.projectAt),
+            dto,
             plannedSubscription.category?.name || "CATEGORIA",
             plannedSubscription.event.participants.map(p => p.email));
 

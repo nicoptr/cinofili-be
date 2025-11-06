@@ -102,7 +102,7 @@ export class SubscriptionRepository {
         }
     }
 
-    async updateProjectionDateById(id: number, projectAt: Date | null | undefined): Promise<Subscription | null> {
+    async updateProjectionPlanningById(id: number, projectAt: Date | null | undefined, location: string | null | undefined): Promise<Subscription | null> {
         try {
             return await this.subscriptions.update({
                 where: {
@@ -110,6 +110,7 @@ export class SubscriptionRepository {
                 },
                 data: {
                     projectAt,
+                    location,
                     isProjectionPlanned: !!projectAt,
                 },
                 include: {

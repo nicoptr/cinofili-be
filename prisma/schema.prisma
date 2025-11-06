@@ -135,6 +135,7 @@ model Subscription {
   isReadyForProjection Boolean?  @default(false)
   isReadyForRating     Boolean?  @default(false)
   projectAt            DateTime?
+  location             String?
   projectionOrder      Int?
 
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)

@@ -1,6 +1,8 @@
 import nodemailer, { Transporter } from "nodemailer";
 import {Service} from "fastify-decorators";
 import process from "process";
+import {SubscriptionPlanDTO} from "@models/Subscription";
+import {formatItaliaDate, formatItaliaTime} from "@utils/date";
 
 export interface EmailOptions {
     from?: string;
@@ -286,7 +288,7 @@ export class EmailSenderService {
         }
     }
 
-    public async sendPlannedProjectionEmail(eventName: string, projectAt: string, categoryName: string, recipients: string[]) {
+    public async sendPlannedProjectionEmail(eventName: string, dto: SubscriptionPlanDTO, categoryName: string, recipients: string[]) {
 
         for (const recipient of recipients) {
             const text = `Ciao, nuova proiezione in programma`;
@@ -311,7 +313,7 @@ export class EmailSenderService {
                                   La Presidentessa ti ha invitato alla proiezione del prossimo film dell'evento <strong>"${eventName}"</strong>. Non posso dirti molto altro, ma... che resti tra noi: la  con la categoria è <strong>"${categoryName}"</strong>.
                                 </p>
                                 <p style="margin: 0 0 16px 0;">
-                                  Le proiezione è prevista il <strong>${projectAt}</strong>. Tieniti libero, ma se proprio non dovessi farcela avvisa la Presidentessa entro un giorno dalla proiezione.
+                                  Le proiezione è prevista il <strong>${formatItaliaDate(dto.projectAt)}</strong> alle ore <strong>${formatItaliaTime(dto.projectAt)}</strong>, dove? <strong>${dto.location.toUpperCase()}</strong>. Tieniti libero, ma se proprio non dovessi farcela avvisa la Presidentessa entro un giorno dalla proiezione.
                                 </p>
                                 <p style="margin: 0 0 16px 0;">
                                    Se dovessi ricevere un'altra mail come questa, fai fede all'ultima che ricevi, sarà quella la data di proiezione.
