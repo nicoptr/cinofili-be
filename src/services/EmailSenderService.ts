@@ -310,7 +310,7 @@ export class EmailSenderService {
                               <td style="padding: 24px;">
                                 <p style="margin: 0 0 16px 0;">Ciao,</p>
                                 <p style="margin: 0 0 16px 0;">
-                                  La Presidentessa ti ha invitato alla proiezione del prossimo film dell'evento <strong>"${eventName}"</strong>. Non posso dirti molto altro, ma... che resti tra noi: la  con la categoria è <strong>"${categoryName}"</strong>.
+                                  La Presidentessa ti ha invitato alla proiezione del prossimo film dell'evento <strong>"${eventName}"</strong>. Non posso dirti molto altro, ma... che resti tra noi: la categoria è <strong>"${categoryName}"</strong>.
                                 </p>
                                 <p style="margin: 0 0 16px 0;">
                                   Le proiezione è prevista il <strong>${formatItaliaDate(dto.projectAt)}</strong> alle ore <strong>${formatItaliaTime(dto.projectAt)}</strong>, dove? <strong>${dto.location.toUpperCase()}</strong>. Tieniti libero, ma se proprio non dovessi farcela avvisa la Presidentessa entro un giorno dalla proiezione.
