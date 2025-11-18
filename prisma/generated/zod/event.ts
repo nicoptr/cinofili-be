@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { CompleteSubscription, RelatedSubscriptionModel, CompleteCategory, RelatedCategoryModel, CompleteUser, RelatedUserModel, CompleteAward, RelatedAwardModel } from "./index"
+import { CompleteSubscription, RelatedSubscriptionModel, CompleteCategory, RelatedCategoryModel, CompleteUser, RelatedUserModel, CompleteAwardInEvent, RelatedAwardInEventModel } from "./index"
 
 export const EventModel = z.object({
   id: z.number().int(),
@@ -17,7 +17,7 @@ export interface CompleteEvent extends z.infer<typeof EventModel> {
   subscriptions: CompleteSubscription[]
   categories: CompleteCategory[]
   participants: CompleteUser[]
-  awards: CompleteAward[]
+  awards: CompleteAwardInEvent[]
 }
 
 /**
@@ -29,5 +29,5 @@ export const RelatedEventModel: z.ZodSchema<CompleteEvent> = z.lazy(() => EventM
   subscriptions: RelatedSubscriptionModel.array(),
   categories: RelatedCategoryModel.array(),
   participants: RelatedUserModel.array(),
-  awards: RelatedAwardModel.array(),
+  awards: RelatedAwardInEventModel.array(),
 }))

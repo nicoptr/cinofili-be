@@ -4,7 +4,7 @@ import { CompleteQuestion, RelatedQuestionModel, CompleteUser, RelatedUserModel,
 export const AnswerModel = z.object({
   id: z.number().int(),
   value: z.number().int(),
-  text: z.string(),
+  text: z.string().nullish(),
   questionId: z.number().int(),
   userId: z.number().int().nullish(),
   subscriptionId: z.number().int().nullish(),

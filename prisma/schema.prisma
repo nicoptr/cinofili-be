@@ -39,7 +39,7 @@ model User {
   events             Event[]
   eventSpecification Json?
   answers            Answer[]
-  wins               Award[]
+  wind               AwardInEvent[]
 
   deleted Boolean @default(false)
 
@@ -118,8 +118,7 @@ model Event {
   subscriptions         Subscription[]
   categories            Category[]
   participants          User[]
-
-  awards Award[]
+  awards                AwardInEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -170,10 +169,23 @@ model Award {
   questionId Int?      @unique
   question   Question? @relation
 
-  events Event[]
+  events AwardInEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AwardInEvent {
+  id Int @id @default(autoincrement())
+
+  awardId Int
+  award   Award @relation(fields: [awardId], references: [id])
+
+  eventId Int
+  event   Event @relation(fields: [eventId], references: [id])
 
   winnerId Int?
-  winner   User? @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+  winner   User? @relation(fields: [winnerId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -194,9 +206,9 @@ model Question {
 }
 
 model Answer {
-  id    Int    @id @default(autoincrement())
+  id    Int     @id @default(autoincrement())
   value Int
-  text  String
+  text  String?
 
   questionId Int
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)

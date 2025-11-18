@@ -55,7 +55,7 @@ export class SubscriptionService {
         return await this.subscriptionRepository.save(principal, dto);
     }
 
-    public async findById(principal: number, wantedSubscriptionId: number, options?: FindOptions): Promise<Subscription | null> {
+    public async safeFindById(principal: number, wantedSubscriptionId: number, options?: FindOptions): Promise<Subscription | null> {
         if (await hasPermission(principal, {action: PermissionAction.UPDATE, entity: "SUBSCRIPTION", scope: PermissionScope.GOD })) {
             return await this.subscriptionRepository.findById(wantedSubscriptionId, options);
         }
@@ -67,6 +67,11 @@ export class SubscriptionService {
             throw new httpErrors.BadRequest("Non puoi vedere le candidature di altri utenti");
         }
         return await this.subscriptionRepository.findById(wantedSubscriptionId, options);
+
+    }
+
+    public async unsafeFindById(wantedSubscriptionId: number): Promise<Subscription | null> {
+        return await this.subscriptionRepository.findFullById(wantedSubscriptionId);
 
     }
 

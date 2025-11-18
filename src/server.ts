@@ -23,6 +23,7 @@ import { Container } from "inversify";
 import {EventController} from "@controllers/EventController";
 import {CategoryController} from "@controllers/CategoryController";
 import {SubscriptionController} from "@controllers/SubsriptionController";
+import {AnswerController} from "@controllers/AnswerController";
 
 export class APIServer {
     private readonly server: FastifyApplication;
@@ -197,6 +198,7 @@ export class APIServer {
             controllers: [
                 ...[ AuthController ],
                 ...[
+                    AnswerController,
                     AuthController,
                     ImageController,
                     HiddenComponentConfigController,

@@ -71,7 +71,7 @@ export class SubscriptionController {
         req: FastifyRequest<{ Params: { id: string }, Querystring: FindOptions }>,
         reply: FastifyReply
     ) {
-        const subscription = await this.subscriptionService.findById(+req.user.id, +req.params.id, req.query);
+        const subscription = await this.subscriptionService.safeFindById(+req.user.id, +req.params.id, req.query);
         if(!subscription) {
             throw new httpErrors.NotFound();
         }

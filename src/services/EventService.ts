@@ -162,4 +162,8 @@ export class EventService {
         return result;
 
     }
+
+    public async getEventWithFormById(eventId: number): Promise<CompleteEvent | null> {
+        return await this.eventRepository.getEventWithFormById(eventId);
+    }
 }

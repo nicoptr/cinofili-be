@@ -140,6 +140,35 @@ export class SubscriptionRepository {
         }
     }
 
+    async findFullById(id: number): Promise<Subscription | null> {
+        try {
+            return await this.subscriptions.findUniqueOrThrow({
+                where: {
+                    id
+                },
+                include: {
+                    scorecard: true,
+                    owner: true,
+                    event: {
+                        include: {
+                            awards: {
+                                include: {
+                                    award: {
+                                        include: {
+                                            question: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (err) {
+            throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
+        }
+    }
+
     async findOne(query: Prisma.SubscriptionWhereInput, options?: FindOptions): Promise<Subscription | null> {
         try {
             return await this.subscriptions.findFirst({

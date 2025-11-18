@@ -13,6 +13,7 @@ import { FindOptions, PaginateOptions } from "@utils/exz";
 import { PaginateDatasource } from "@models/Paginate";
 import { encryptPasswordSync } from "@utils/crypto";
 import {EventCreateSchema, EventDTO, EventUpdateSchema} from "@models/Event";
+import {CompleteEvent} from "../../prisma/generated/zod";
 
 @Service()
 export class EventRepository {
@@ -148,6 +149,29 @@ export class EventRepository {
                     id
                 }
             });
+        } catch (err) {
+            throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
+        }
+    }
+
+    async getEventWithFormById(eventId: number): Promise<CompleteEvent | null> {
+        try {
+            return await this.events.findUniqueOrThrow({
+                where: {
+                    id: eventId,
+                },
+                include: {
+                    awards: {
+                        include: {
+                            award: {
+                                include: {
+                                    question: true
+                                }
+                            },
+                        }
+                    }
+                }
+            }) as CompleteEvent;
         } catch (err) {
             throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
         }

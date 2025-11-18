@@ -82,6 +82,35 @@ export class EventController {
             .send(event);
     }
 
+    @GET("/form/:eventId", {
+        schema: {
+            operationId: "getEventForm",
+            summary: "Get Event form from event id",
+            params: exz.pathEventId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.USER, "USER", PermissionScope.USER),
+        ],
+    })
+    async getFormByEventId(
+        req: FastifyRequest<{ Params: { eventId: string }, Querystring: FindOptions }>,
+        reply: FastifyReply
+    ) {
+        const event = await this.eventService.getEventWithFormById(+req.params.eventId);
+        if(!event) {
+            throw new httpErrors.NotFound();
+        }
+        reply
+            .status(200)
+            .send(event);
+    }
+
     @POST("/", {
         schema: {
             operationId: "paginateEvent",
