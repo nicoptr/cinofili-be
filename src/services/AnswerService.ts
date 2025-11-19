@@ -56,4 +56,8 @@ export class AnswerService {
         return ids.length !== new Set(ids).size;
     }
 
+    public async getPersonalAnswersBySubId(principalId: number, subId: number) {
+        return this.answerRepository.findAnswersByUserAndSubscription(principalId, subId);
+    }
+
 }

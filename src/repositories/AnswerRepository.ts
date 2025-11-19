@@ -1,4 +1,4 @@
-import { Prisma, Event } from "@prisma/client";
+import {Prisma, Event, Answer} from "@prisma/client";
 import {
     evaluateQuery,
     getPaginationMetadata,
@@ -36,6 +36,22 @@ export class AnswerRepository {
         } catch (err) {
             throw mapPrismaErrorToHttpError(err as PrismaClientKnownRequestError);
         }
+    }
+
+    async findAnswersByUserAndSubscription(userId: number, subscriptionId: number): Promise<Answer[]> {
+        return this.answers.findMany({
+            where: {
+                userId: userId,
+                subscriptionId: subscriptionId
+            },
+            include: {
+                question: {
+                    include: {
+                        award: true,
+                    }
+                }
+            }
+        })
     }
 
 }
