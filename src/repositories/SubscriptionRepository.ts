@@ -151,6 +151,7 @@ export class SubscriptionRepository {
                     owner: true,
                     event: {
                         include: {
+                            participants: true,
                             awards: {
                                 include: {
                                     award: {

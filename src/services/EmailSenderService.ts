@@ -5,6 +5,16 @@ import {SubscriptionPlanDTO} from "@models/Subscription";
 import {formatItaliaDate, formatItaliaTime} from "@utils/date";
 import {CompleteSubscription} from "../../prisma/generated/zod";
 import {User} from "@prisma/client";
+import {
+    SUBSCRIPTION_UPDATE_TEMPLATE
+} from "../templates/email/subscriptionTemplate";
+import {INVALIDATION_TEMPLATE} from "../templates/email/invalidationTemplate";
+import {INVITATION_TEMPLATE} from "../templates/email/invitationTemplate";
+import {SUBSCRIPTION_TEMPLATE, SUBSCRIPTION_TEMPLATE_TEXT} from "../templates/email/subscriptionUpdateTemplate";
+import {PROJECTION_PLANNED_TEMPLATE} from "../templates/email/projectionPlannedTemplate";
+import {FORM_FULFILLED_FOR_GOD_TEMPLATE} from "../templates/email/formFulfilledForGodTemplate";
+import {FORM_FULFILLED_FOR_OWNER_TEMPLATE} from "../templates/email/formFulfilledForOwnerTemplate";
+import {INVITATION_TO_FULFILL_TEMPLATE} from "../templates/email/invitationToFulFillTemplate";
 
 export interface EmailOptions {
     from?: string;
@@ -45,57 +55,12 @@ export class EmailSenderService {
     }
 
     public async sendSubscriptionEmail(eventName: string, movieName: string, categoryName: string, recipient: string) {
-
-        const text = `Ciao Presidentessa,
-                      ti informiamo che il film "${movieName}" è stato candidato per la categoria "${categoryName}" dell'evento "${eventName}".
-                      Accedi alla piattaforma per verificare tutte le candidature.
-                      A presto,
-                      Il team cinofilo`;
-
-        const html = `<!DOCTYPE html>
-                          <html lang="it">
-                            <head>
-                              <meta charset="UTF-8" />
-                              <title>Nuova candidatura</title>
-                            </head>
-                            <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
-                              <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
-                                <tr>
-                                  <td style="background-color: #4f46e5; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
-                                    Nuova candidatura ricevuta 🎬
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td style="padding: 24px;">
-                                    <p style="margin: 0 0 16px 0;">Ciao <strong>Presidentessa</strong>,</p>
-                                    <p style="margin: 0 0 16px 0;">
-                                      Ti informiamo che il film <strong>"${movieName}"</strong> è stato candidato per la categoria 
-                                      <strong>"${categoryName}"</strong> dell'evento <strong>"${eventName}"</strong>.
-                                    </p>
-                                    <p style="margin: 0 0 24px 0;">
-                                      Accedi alla piattaforma per verificare tutte le candidature e gestirle.
-                                    </p>
-                                    <p style="text-align: center;">
-                                      <a href="${process.env.CLIENT_URL!}" 
-                                         style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                        Accedi ora
-                                      </a>
-                                    </p>
-                                    <p style="margin-top: 32px; font-size: 14px; color: #777;">
-                                      A presto,<br />
-                                      <strong>Il team Cinofilo</strong>
-                                    </p>
-                                  </td>
-                                </tr>
-                              </table>
-                            </body>
-                          </html>`;
         try {
             await this.sendEmail({
                 to: recipient,
                 subject: "Nuova candidatura ricevuta",
-                text: text,
-                html: html,
+                text: SUBSCRIPTION_TEMPLATE_TEXT,
+                html: SUBSCRIPTION_TEMPLATE({ movieName, eventName, categoryName}),
             })
         } catch (e) {
             console.error(e);
@@ -103,56 +68,11 @@ export class EmailSenderService {
     }
 
     public async sendSubscriptionUpdateEmail(eventName: string, movieName: string, categoryName: string, recipient: string) {
-
-        const text = `Ciao Presidentessa,
-                      ti informiamo che la candidatura "${movieName}" dell'evento "${eventName}" è stata modificata con "${categoryName}".
-                      Accedi alla piattaforma per verificare tutte le candidature.
-                      A presto,
-                      Il team cinofilo`;
-
-        const html = `<!DOCTYPE html>
-                          <html lang="it">
-                            <head>
-                              <meta charset="UTF-8" />
-                              <title>Candidatura aggiornata</title>
-                            </head>
-                            <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
-                              <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
-                                <tr>
-                                  <td style="background-color: #4f46e5; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
-                                    Candidatura aggiornata 🎬
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td style="padding: 24px;">
-                                    <p style="margin: 0 0 16px 0;">Ciao <strong>Presidentessa</strong>,</p>
-                                    <p style="margin: 0 0 16px 0;">
-                                      Ti informiamo che la candidatura <strong>"${movieName}"</strong> con categoria <strong>"${categoryName}"</strong> e appartenente all'evento <strong>"${eventName}"</strong> è stata modificata.
-                                    </p>
-                                    <p style="margin: 0 0 24px 0;">
-                                      Accedi alla piattaforma per verificare tutte le candidature e gestirle.
-                                    </p>
-                                    <p style="text-align: center;">
-                                      <a href="${process.env.CLIENT_URL!}" 
-                                         style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                        Accedi ora
-                                      </a>
-                                    </p>
-                                    <p style="margin-top: 32px; font-size: 14px; color: #777;">
-                                      A presto,<br />
-                                      <strong>Il team Cinofilo</strong>
-                                    </p>
-                                  </td>
-                                </tr>
-                              </table>
-                            </body>
-                          </html>`;
         try {
             await this.sendEmail({
                 to: recipient,
                 subject: "Candidatura aggiornata",
-                text: text,
-                html: html,
+                html: SUBSCRIPTION_UPDATE_TEMPLATE( { eventName, movieName, categoryName } ),
             })
         } catch (e) {
             console.error(e);
@@ -161,62 +81,11 @@ export class EmailSenderService {
 
 
     public async sendInvalidationEmail(ownerName: string, eventName: string, movieName: string, recipient: string) {
-
-        const text = `Ciao ${ownerName},
-                        la tua candidatura del film "${movieName}" per l'evento "${eventName}" è stata resa non valida dalla Presidentessa.
-                        Per poter partecipare, accedi alla piattaforma e modifica il film oppure elimina la candidatura e riprova con un film diverso.
-                        Ti ringraziamo per la comprensione e per la tua partecipazione.
-                        Accedi qui: ${process.env.CLIENT_URL!}
-                        Un caro saluto,  
-                        Il team organizzativo`;
-
-
-        const html = `<!DOCTYPE html>
-                          <html lang="it">
-                            <head>
-                              <meta charset="UTF-8" />
-                              <title>Candidatura non valida</title>
-                            </head>
-                            <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
-                              <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
-                                <tr>
-                                  <td style="background-color: #dc2626; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
-                                    Candidatura non valida ⚠️
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td style="padding: 24px;">
-                                    <p style="margin: 0 0 16px 0;">Ciao <strong>${ownerName}</strong>,</p>
-                                    <p style="margin: 0 0 16px 0;">
-                                      La tua candidatura del film <strong>"${movieName}"</strong> per l'evento <strong>"${eventName}"</strong> è stata resa non valida dalla Presidentessa.
-                                    </p>
-                                    <p style="margin: 0 0 16px 0;">
-                                      Per poter partecipare, accedi alla piattaforma e <strong>modifica il film</strong> oppure <strong>elimina la candidatura</strong> e riprova con un film diverso.
-                                    </p>
-                                    <p style="margin: 0 0 24px 0;">
-                                      Ti ringraziamo per la comprensione e per la tua partecipazione al nostro evento.
-                                    </p>
-                                    <p style="text-align: center;">
-                                      <a href="${process.env.CLIENT_URL!}" 
-                                         style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                        Accedi alla piattaforma
-                                      </a>
-                                    </p>
-                                    <p style="margin-top: 32px; font-size: 14px; color: #777;">
-                                      Un caro saluto,<br />
-                                      <strong>Il team organizzativo</strong>
-                                    </p>
-                                  </td>
-                                </tr>
-                              </table>
-                            </body>
-                          </html>`;
         try {
             await this.sendEmail({
                 to: recipient,
                 subject: "La tua candidatura non è valida!",
-                text: text,
-                html: html,
+                html: INVALIDATION_TEMPLATE({ ownerName, eventName, movieName }),
             })
         } catch (e) {
             console.error(e);
@@ -224,66 +93,11 @@ export class EmailSenderService {
     }
 
     public async sendInvitationEmail(participantName: string, eventName: string, subscriptionExpiryDateString: string, expiryDateString: string, categoryName: string, recipient: string) {
-
-        const text = `Ciao ${participantName},
-                    la Presidentessa ti ha invitato a partecipare all'evento "${eventName}" con la categoria "${categoryName}".
-                    Le candidature terminano il ${subscriptionExpiryDateString} e la premiazione si terrà il ${subscriptionExpiryDateString}
-                    Ricorda che la tua categoria e la tua candidatura devono rimanere segrete, neanche la Presidentessa deve essere informata.
-                    Questa è un messaggio autogenerato e deve rimanere tra noi ;)
-                    Accedi alla piattaforma per candidare un film: ${process.env.CLIENT_URL!}
-                    Un caro saluto,  
-                    Il team organizzativo`;
-
-        const html = `<!DOCTYPE html>
-                      <html lang="it">
-                        <head>
-                          <meta charset="UTF-8" />
-                          <title>Invito a partecipare</title>
-                        </head>
-                        <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
-                          <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
-                            <tr>
-                              <td style="background-color: #4f46e5; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
-                                Invito a partecipare 🎉
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="padding: 24px;">
-                                <p style="margin: 0 0 16px 0;">Ciao <strong>${participantName}</strong>,</p>
-                                <p style="margin: 0 0 16px 0;">
-                                  La Presidentessa ti ha invitato a partecipare all'evento <strong>"${eventName}"</strong> con la categoria <strong>"${categoryName}"</strong>.
-                                </p>
-                                <p style="margin: 0 0 16px 0;">
-                                  Le candidature terminano il <strong>${subscriptionExpiryDateString}</strong> e la premiazione si terrà il  <strong>${expiryDateString}</strong>.
-                                </p>
-                                <p style="margin: 0 0 16px 0;">
-                                  Ricorda che la tua categoria e la tua candidatura devono rimanere <strong>segrete</strong>, neanche la Presidentessa deve essere informata.
-                                </p>
-                                <p style="margin: 0 0 24px 0;">
-                                  Questa è un messaggio autogenerato e deve rimanere tra noi ;)
-                                </p>
-                                <p style="text-align: center;">
-                                  <a href="${process.env.CLIENT_URL!}" 
-                                     style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                    Accedi alla piattaforma
-                                  </a>
-                                </p>
-                                <p style="margin-top: 32px; font-size: 14px; color: #777;">
-                                  Un caro saluto,<br />
-                                  <strong>Il team organizzativo</strong>
-                                </p>
-                              </td>
-                            </tr>
-                          </table>
-                        </body>
-                      </html>`;
-
         try {
             await this.sendEmail({
                 to: recipient,
                 subject: "Sei stato invitato a partecipare!",
-                text: text,
-                html: html,
+                html: INVITATION_TEMPLATE({ participantName, eventName, subscriptionExpiryDateString, expiryDateString, categoryName }),
             });
         } catch (e) {
             console.error(e);
@@ -293,58 +107,11 @@ export class EmailSenderService {
     public async sendPlannedProjectionEmail(eventName: string, dto: SubscriptionPlanDTO, categoryName: string, recipients: string[]) {
 
         for (const recipient of recipients) {
-            const text = `Ciao, nuova proiezione in programma`;
-
-            const html = `<!DOCTYPE html>
-                      <html lang="it">
-                        <head>
-                          <meta charset="UTF-8" />
-                          <title>Invito alla proiezione</title>
-                        </head>
-                        <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
-                          <table align="center" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
-                            <tr>
-                              <td style="background-color: #4f46e5; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
-                                Invito a partecipare 🎉
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="padding: 24px;">
-                                <p style="margin: 0 0 16px 0;">Ciao,</p>
-                                <p style="margin: 0 0 16px 0;">
-                                  La Presidentessa ti ha invitato alla proiezione del prossimo film dell'evento <strong>"${eventName}"</strong>. Non posso dirti molto altro, ma... che resti tra noi: la categoria è <strong>"${categoryName}"</strong>.
-                                </p>
-                                <p style="margin: 0 0 16px 0;">
-                                  Le proiezione è prevista il <strong>${formatItaliaDate(dto.projectAt)}</strong> alle ore <strong>${formatItaliaTime(dto.projectAt)}</strong>, dove? <strong>${dto.location.toUpperCase()}</strong>. Tieniti libero, ma se proprio non dovessi farcela avvisa la Presidentessa entro un giorno dalla proiezione.
-                                </p>
-                                <p style="margin: 0 0 16px 0;">
-                                   Se dovessi ricevere un'altra mail come questa, fai fede all'ultima che ricevi, sarà quella la data di proiezione.
-                                </p>
-                                <p style="margin: 0 0 24px 0;">
-                                  Ricorda che nello spirito del gioco non dovresti provare ad indovinare chi dei tuoi amici ha candidato il film che guarderete, se invece si tratta del tuo film non battere ciglio!.
-                                </p>
-                                <p style="text-align: center;">
-                                  <a href="${process.env.CLIENT_URL!}" 
-                                     style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                    Accedi alla piattaforma
-                                  </a>
-                                </p>
-                                <p style="margin-top: 32px; font-size: 14px; color: #777;">
-                                  Buon film,<br />
-                                  <strong>Il team organizzativo</strong>
-                                </p>
-                              </td>
-                            </tr>
-                          </table>
-                        </body>
-                      </html>`;
-
             try {
                 await this.sendEmail({
                     to: recipient,
                     subject: "Nuova proiezione in programma!",
-                    text: text,
-                    html: html,
+                    html: PROJECTION_PLANNED_TEMPLATE({ eventName, sub: dto, categoryName }),
                 });
             } catch (e) {
                 console.error(e);
@@ -358,64 +125,11 @@ export class EmailSenderService {
     }
 
     public async sendFormFulfilledEmailForGod(subscription: CompleteSubscription, user: User) {
-        const text = `Ciao Presidentessa,
-                    L'utente ${subscription.owner.username} ha appena compilato il questionario per il film ${subscription.movieName}`;
-
-        const html = `<!DOCTYPE html>
-                        <html lang="it">
-                          <head>
-                            <meta charset="UTF-8" />
-                            <title>Nuova compilazione ricevuta</title>
-                          </head>
-                          <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
-                            <table align="center" cellpadding="0" cellspacing="0" width="100%" 
-                              style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
-                              
-                              <tr>
-                                <td style="background-color: #4f46e5; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
-                                  Nuova compilazione ricevuta ✨
-                                </td>
-                              </tr>
-                        
-                              <tr>
-                                <td style="padding: 24px;">
-                                  <p style="margin: 0 0 16px 0;">
-                                    Cara Presidentessa,
-                                  </p>
-                        
-                                  <p style="margin: 0 0 16px 0;">
-                                    Ti informiamo che è stata appena effettuata una nuova compilazione 
-                                    per il film <strong>"${subscription.movieName}"</strong>.
-                                  </p>
-                        
-                                  <p style="margin: 0 0 16px 24px; padding: 12px; background-color: #f4f5ff; border-left: 4px solid #4f46e5; border-radius: 4px;">
-                                    <strong>Utente:</strong> ${user.username}
-                                  </p>
-                        
-                                  <p style="text-align: center;">
-                                    <a href="${process.env.CLIENT_URL!}" 
-                                       style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                      Accedi alla piattaforma
-                                    </a>
-                                  </p>
-                        
-                                  <p style="margin-top: 32px; font-size: 14px; color: #777;">
-                                    Cordialmente,<br />
-                                    <strong>Il team organizzativo</strong>
-                                  </p>
-                                </td>
-                              </tr>
-                              
-                            </table>
-                          </body>
-                        </html>`;
-
         try {
             await this.sendEmail({
                 to: process.env.GOD_EMAIL!,
                 subject: "Nuova compilazione ricevuta",
-                text: text,
-                html: html,
+                html: FORM_FULFILLED_FOR_GOD_TEMPLATE(subscription, user),
             });
         } catch (e) {
             console.error(e);
@@ -423,68 +137,30 @@ export class EmailSenderService {
     }
 
     public async sendFormFulfilledEmailForOwner(subscription: CompleteSubscription, user: User) {
-        const text = "";
-
-        const html = `<!DOCTYPE html>
-                        <html lang="it">
-                          <head>
-                            <meta charset="UTF-8" />
-                            <title>Nuova recensione ricevuta</title>
-                          </head>
-                          <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px; color: #333;">
-                            <table align="center" cellpadding="0" cellspacing="0" width="100%"
-                              style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;">
-                              
-                              <tr>
-                                <td style="background-color: #4f46e5; color: #fff; padding: 16px 24px; text-align: center; font-size: 20px; font-weight: bold;">
-                                  Hai ricevuto una nuova recensione ⭐
-                                </td>
-                              </tr>
-                        
-                              <tr>
-                                <td style="padding: 24px;">
-                                  <p style="margin: 0 0 16px 0;">
-                                    Ciao <strong>${subscription.owner.username}</strong>,
-                                  </p>
-                        
-                                  <p style="margin: 0 0 16px 0;">
-                                    Una nuova recensione è stata appena inviata per il tuo film 
-                                    <strong>"${subscription.movieName}"</strong>.
-                                  </p>
-                        
-                                  <p style="margin: 0 0 16px 0;">
-                                    La recensione è stata compilata dall’utente:
-                                  </p>
-                        
-                                  <p style="margin: 0 0 24px 24px; padding: 12px; background-color: #f4f5ff; border-left: 4px solid #4f46e5; border-radius: 4px;">
-                                    <strong>${user.username}</strong>
-                                  </p>
-                        
-                                  <p style="text-align: center;">
-                                    <a href="${process.env.CLIENT_URL!}" 
-                                       style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                      Vai alla piattaforma
-                                    </a>
-                                  </p>
-                        
-                                  <p style="margin-top: 32px; font-size: 14px; color: #777;">
-                                    Grazie per essere parte del nostro progetto,<br />
-                                    <strong>Il team organizzativo</strong>
-                                  </p>
-                                </td>
-                              </tr>
-                        
-                            </table>
-                          </body>
-                        </html>`;
-
         try {
             await this.sendEmail({
                 to: subscription.owner.email,
                 subject: "Nuova compilazione ricevuta",
-                text: text,
-                html: html,
+                html: FORM_FULFILLED_FOR_OWNER_TEMPLATE(subscription, user),
             });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public async sendInvitationToFulfill(eventName: string, movieName: string, recipients: string[]) {
+        try {
+            for (const recipient of recipients) {
+                try {
+                    await this.sendEmail({
+                        to: recipient,
+                        subject: "È il momento di votare!",
+                        html: INVITATION_TO_FULFILL_TEMPLATE({ eventName, movieName }),
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
+            }
         } catch (e) {
             console.error(e);
         }

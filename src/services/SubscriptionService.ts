@@ -260,4 +260,13 @@ export class SubscriptionService {
 
         return result;
     }
+
+    public async inviteToFulfillForm(subId: number): Promise<boolean> {
+        const sub = await this.subscriptionRepository.findFullById(subId) as CompleteSubscription;
+
+        this.emailSender.sendInvitationToFulfill(sub.event.name, sub.movieName, sub.event.participants.filter(p => p.id !== sub.ownerId).map(p => p.email));
+
+        return true;
+
+    }
 }

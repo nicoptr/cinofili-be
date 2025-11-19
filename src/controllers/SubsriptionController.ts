@@ -278,4 +278,33 @@ export class SubscriptionController {
             .status(200)
             .send(result);
     }
+
+    @POST("/invite/rating/:id", {
+        schema: {
+            operationId: "inviteParticipantsToFulfillForm",
+            summary: "Invite Participants To Fulfill Form",
+            params: exz.pathId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.UPDATE, "EVENT", PermissionScope.GOD),
+        ],
+    })
+    async inviteToFulfillForm(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const result = await this.subscriptionService.inviteToFulfillForm(+req.params.id);
+        if(!result) {
+            throw new httpErrors.InternalServerError("Errore imprevisto");
+        }
+        reply
+            .status(200)
+            .send(result);
+    }
 }

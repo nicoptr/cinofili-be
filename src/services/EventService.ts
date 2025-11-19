@@ -21,7 +21,8 @@ export class EventService {
         private readonly eventRepository: EventRepository,
         private readonly userService: UserService,
         private readonly emailService: EmailSenderService,
-    ) {}
+    ) {
+    }
 
     public async save(dto: EventDTO) {
 
@@ -35,13 +36,13 @@ export class EventService {
     public async safeFindById(principalId: number, wantedEventId: number, options?: FindOptions): Promise<Event | null> {
         const result = await this.eventRepository.findById(wantedEventId, options) as CompleteEvent;
 
-        const loggedUser = await this.userService.findById(principalId, { populate: "roles"}) as CompleteUser;
+        const loggedUser = await this.userService.findById(principalId, {populate: "roles"}) as CompleteUser;
 
         if (loggedUser.roles[0]?.roleName === "GOD") {
             return result as Event;
         }
 
-        return { ...result, subscriptions: result.subscriptions.filter(sub => sub.isReadyForRating)} as Event;
+        return {...result, subscriptions: result.subscriptions.filter(sub => sub.isReadyForRating)} as Event;
     }
 
     public async findOne(query: Prisma.EventWhereInput, options?: FindOptions): Promise<Event | null> {
@@ -65,13 +66,13 @@ export class EventService {
 
     private createQueryFromPayload(payload: EventQueryDTO): Prisma.EventWhereInput {
         const valueQuery: Prisma.EventWhereInput[] = [
-            createObjectWithoutThrow(payload.value, { name: { contains: payload.value, mode: "insensitive" } }),
-            createObjectWithoutThrow(payload.value, { description: { contains: payload.value, mode: "insensitive" } }),
+            createObjectWithoutThrow(payload.value, {name: {contains: payload.value, mode: "insensitive"}}),
+            createObjectWithoutThrow(payload.value, {description: {contains: payload.value, mode: "insensitive"}}),
         ].filter(o => Object.values(o).length > 0);
 
 
         const query: Prisma.EventWhereInput[] = [
-            createObjectWithoutThrow(valueQuery.length, { OR: valueQuery }),
+            createObjectWithoutThrow(valueQuery.length, {OR: valueQuery}),
         ].filter(o => Object.values(o).length > 0);
 
         return {
@@ -148,14 +149,14 @@ export class EventService {
         return true;
     }
 
-    private async splitCategories(eventId: number): Promise<{userId: number, eventId: number, categoryId: number}[]> {
+    private async splitCategories(eventId: number): Promise<{ userId: number, eventId: number, categoryId: number }[]> {
         const result = [];
 
         const event = await this.eventRepository.findById(eventId) as CompleteEvent;
 
-        const shuffledUsers = event.participants.map(v => ({ v, sort: Math.random() }))
+        const shuffledUsers = event.participants.map(v => ({v, sort: Math.random()}))
             .sort((a, b) => a.sort - b.sort)
-            .map(({ v }) => v);
+            .map(({v}) => v);
 
         let index = 0;
 
@@ -178,4 +179,5 @@ export class EventService {
     public async getEventWithFormById(eventId: number): Promise<CompleteEvent | null> {
         return await this.eventRepository.getEventWithFormById(eventId);
     }
+
 }
