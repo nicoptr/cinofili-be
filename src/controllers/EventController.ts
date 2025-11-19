@@ -73,7 +73,7 @@ export class EventController {
         req: FastifyRequest<{ Params: { id: string }, Querystring: FindOptions }>,
         reply: FastifyReply
     ) {
-        const event = await this.eventService.findById(+req.params.id, req.query);
+        const event = await this.eventService.safeFindById(+req.user.id, +req.params.id, req.query);
         if(!event) {
             throw new httpErrors.NotFound();
         }

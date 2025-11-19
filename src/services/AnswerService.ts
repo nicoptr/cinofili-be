@@ -18,7 +18,7 @@ export class AnswerService {
         private readonly userService: UserService,
     ) {}
 
-    public async rateSubscription(principalId: number, subscriptionId: number, dto: AnswerFormDTO): Promise<boolean> {
+    public async rateSubscription(principalId: number, subscriptionId: number, dto: AnswerFormDTO): Promise<{ result: boolean }> {
         {
             const subscription = await this.subscriptionService.unsafeFindById(subscriptionId) as CompleteSubscription;
 
@@ -47,7 +47,7 @@ export class AnswerService {
             const user = await this.userService.findById(principalId);
             this.emailService.sendFormFulfilledEmails(subscription, user!);
 
-            return true;
+            return { result: true };
         }
     }
 

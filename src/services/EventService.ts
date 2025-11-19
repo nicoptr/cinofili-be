@@ -6,7 +6,7 @@ import { FindOptions, PaginateOptions } from "@utils/exz";
 import { PaginateDatasource } from "@models/Paginate";
 import { createObjectWithoutThrow } from "@utils/query";
 import httpErrors from "http-errors";
-import { CompleteEvent } from "../../prisma/generated/zod";
+import {CompleteEvent, CompleteUser} from "../../prisma/generated/zod";
 import { PermissionAction } from "../enums/PermissionAction";
 import { PermissionScope } from "../enums/PermissionScope";
 import {EventDTO, EventQueryDTO} from "@models/Event";
@@ -30,6 +30,18 @@ export class EventService {
 
     public async findById(wantedEventId: number, options?: FindOptions): Promise<Event | null> {
         return await this.eventRepository.findById(wantedEventId, options);
+    }
+
+    public async safeFindById(principalId: number, wantedEventId: number, options?: FindOptions): Promise<Event | null> {
+        const result = await this.eventRepository.findById(wantedEventId, options) as CompleteEvent;
+
+        const loggedUser = await this.userService.findById(principalId, { populate: "roles"}) as CompleteUser;
+
+        if (loggedUser.roles[0]?.roleName === "GOD") {
+            return result as Event;
+        }
+
+        return { ...result, subscriptions: result.subscriptions.filter(sub => sub.isReadyForRating)} as Event;
     }
 
     public async findOne(query: Prisma.EventWhereInput, options?: FindOptions): Promise<Event | null> {
