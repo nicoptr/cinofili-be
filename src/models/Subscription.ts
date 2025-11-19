@@ -7,6 +7,7 @@ export const SubscriptionSchema = z.object({
     categoryId: z.number(),
     eventId: z.number(),
     isValid: z.boolean().optional(),
+    isReadyForRating: z.boolean().optional(),
 });
 
 export type SubscriptionDTO = z.infer<typeof SubscriptionSchema>;

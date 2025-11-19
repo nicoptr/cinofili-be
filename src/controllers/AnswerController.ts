@@ -67,4 +67,30 @@ export class AnswerController {
             .status(200)
             .send(answers);
     }
+
+    @GET("/rate/all/:id", {
+        schema: {
+            operationId: "getAllAnswersBySub",
+            summary: "Get all Answers from subscription id",
+            params: exz.pathId,
+            security: [
+                {
+                    apiKey: []
+                }
+            ],
+        },
+        onRequest: [
+            Authenticate(),
+            HasPermission(PermissionAction.READ, "ANSWER", PermissionScope.GOD),
+        ],
+    })
+    async getAllAnswersBySub(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const answers = await this.answerService.getAllAnswersBySubId(+req.params.id);
+        reply
+            .status(200)
+            .send(answers);
+    }
 }

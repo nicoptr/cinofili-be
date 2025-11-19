@@ -60,4 +60,8 @@ export class AnswerService {
         return this.answerRepository.findAnswersByUserAndSubscription(principalId, subId);
     }
 
+    public async getAllAnswersBySubId(subId: number) {
+        return this.answerRepository.findAnswersBySubscription(subId);
+    }
+
 }

@@ -266,6 +266,8 @@ export class SubscriptionService {
 
         this.emailSender.sendInvitationToFulfill(sub.event.name, sub.movieName, sub.event.participants.filter(p => p.id !== sub.ownerId).map(p => p.email));
 
+        await this.subscriptionRepository.updateById(subId, {isReadyForRating: true});
+
         return true;
 
     }

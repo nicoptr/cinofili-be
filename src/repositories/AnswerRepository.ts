@@ -54,4 +54,19 @@ export class AnswerRepository {
         })
     }
 
+    async findAnswersBySubscription(subscriptionId: number): Promise<Answer[]> {
+        return this.answers.findMany({
+            where: {
+                subscriptionId: subscriptionId
+            },
+            include: {
+                question: {
+                    include: {
+                        award: true,
+                    }
+                }
+            }
+        })
+    }
+
 }
