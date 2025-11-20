@@ -120,16 +120,16 @@ export class EmailSenderService {
     }
 
     public async sendFormFulfilledEmails(subscription: CompleteSubscription, user: User) {
-        await this.sendFormFulfilledEmailForGod(subscription, user);
+        await this.sendFormFulfilledEmailForGod(subscription);
         await this.sendFormFulfilledEmailForOwner(subscription, user);
     }
 
-    public async sendFormFulfilledEmailForGod(subscription: CompleteSubscription, user: User) {
+    public async sendFormFulfilledEmailForGod(subscription: CompleteSubscription) {
         try {
             await this.sendEmail({
                 to: process.env.GOD_EMAIL!,
                 subject: "Nuova compilazione ricevuta",
-                html: FORM_FULFILLED_FOR_GOD_TEMPLATE(subscription, user),
+                html: FORM_FULFILLED_FOR_GOD_TEMPLATE(subscription),
             });
         } catch (e) {
             console.error(e);

@@ -2,7 +2,7 @@ import process from "process";
 import {CompleteSubscription} from "../../../prisma/generated/zod";
 import {User} from "@prisma/client";
 
-export const FORM_FULFILLED_FOR_GOD_TEMPLATE = (subscription: CompleteSubscription, user: User ): string => {
+export const FORM_FULFILLED_FOR_GOD_TEMPLATE = (subscription: CompleteSubscription ): string => {
     return `<!DOCTYPE html>
                         <html lang="it">
                           <head>
@@ -29,11 +29,7 @@ export const FORM_FULFILLED_FOR_GOD_TEMPLATE = (subscription: CompleteSubscripti
                                     Ti informiamo che è stata appena effettuata una nuova compilazione 
                                     per il film <strong>"${subscription.movieName}"</strong>.
                                   </p>
-                        
-                                  <p style="margin: 0 0 16px 24px; padding: 12px; background-color: #f4f5ff; border-left: 4px solid #4f46e5; border-radius: 4px;">
-                                    <strong>Utente:</strong> ${user.username}
-                                  </p>
-                        
+                                  
                                   <p style="text-align: center;">
                                     <a href="${process.env.CLIENT_URL!}" 
                                        style="background-color: #4f46e5; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">
