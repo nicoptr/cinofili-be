@@ -14,7 +14,6 @@ import {PermissionScope} from "../enums/PermissionScope";
 import {EmailSenderService} from "@services/EmailSenderService";
 import { DateTime } from 'luxon';
 import process from "process";
-import {formatItaliaDate} from "@utils/date";
 
 @Service()
 export class SubscriptionService {
@@ -221,7 +220,7 @@ export class SubscriptionService {
         // sort subscription by asc projection order
         // get last not ready for projection
         const nextProjection = event.subscriptions.filter(s => !s.isReadyForProjection)
-            .sort((a, b) => a.projectionOrder! - a.projectionOrder!)[0];
+            .sort((a, b) => a.projectionOrder! - b.projectionOrder!)[0];
 
         if (!nextProjection) {
             throw httpErrors.InternalServerError("Impossibile svelare la prossima proiezione")
