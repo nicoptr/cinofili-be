@@ -102,7 +102,7 @@ export class UserService {
 
         const mergedSpecs = this.mergeEventSpecs(existingSpecs, newSpecs);
 
-        return await this.userRepository.updateEventSpecificationById(userId, newSpecs);
+        return await this.userRepository.updateEventSpecificationById(userId, mergedSpecs);
     }
 
     private mergeEventSpecs(oldSpecs: EventSpecificationDTO[], newSpecs: EventSpecificationDTO[]): EventSpecificationDTO[] {
